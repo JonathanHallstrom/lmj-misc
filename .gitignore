@@ -1,3 +1,11 @@
+# Folders
+.idea/
+cmake-build-debug/
+cmake-build-release/
+
+# Misc
+*.zip
+
 # Prerequisites
 *.d
 
