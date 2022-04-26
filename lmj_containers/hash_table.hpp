@@ -99,7 +99,7 @@ namespace lmj {
             return (_is_set[_idx] == active_enum::ACTIVE) ? _table[_idx].second : emplace(_key, value_type{});
         }
 
-        bool contains(key_type const &_key) {
+        bool contains(key_type const &_key) const {
             return _is_set[_get_index_read(_key)] == active_enum::ACTIVE;
         }
 
@@ -185,7 +185,7 @@ namespace lmj {
             return _idx;
         }
 
-        [[nodiscard]] bool _should_grow() {
+        [[nodiscard]] bool _should_grow() const {
             return _elem_count * 3 / 2 > _capacity;
         }
 
