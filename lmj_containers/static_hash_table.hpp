@@ -16,6 +16,11 @@ namespace lmj {
         size_type _elem_count{};
         hash_type _hasher{};
 
+        enum active_enum : bool_type {
+            ACTIVE = 1,
+            TOMBSTONE = 2
+        };
+
         constexpr static_hash_table() = default;
 
         constexpr static_hash_table(static_hash_table const &other) {
@@ -64,10 +69,10 @@ namespace lmj {
 
         constexpr void remove(key_type const &_key) {
             size_type _idx = _get_index_read(_key);
-            if (_is_set[_idx] == 1) {
+            if (_is_set[_idx] == active_enum::ACTIVE) {
                 --_elem_count;
                 _table[_idx].~pair_type();
-                _is_set[_idx] = 2;
+                _is_set[_idx] = active_enum::TOMBSTONE;
             }
         }
 
@@ -80,10 +85,10 @@ namespace lmj {
             static_assert(sizeof...(_pack));
             auto _p = pair_type{_pack...};
             size_type _idx = _get_index_write(_p.first);
-            if (_is_set[_idx] == 1)
+            if (_is_set[_idx] == active_enum::ACTIVE)
                 return _table[_idx].second;
             ++_elem_count;
-            _is_set[_idx] = 1;
+            _is_set[_idx] = active_enum::ACTIVE;
             _table[_idx].first = _p.first;
             _table[_idx].second = _p.second;
             return _table[_idx].second;
@@ -100,7 +105,7 @@ namespace lmj {
     private:
         constexpr void _copy(static_hash_table const &other) {
             for (size_type i = 0; i < other.capacity(); ++i) {
-                if (other._is_set[i] == 1) {
+                if (other._is_set[i] == active_enum::ACTIVE) {
                     _table[i].first = other._table[i].second;
                     _table[i].second = other._table[i].second;
                 }
@@ -127,7 +132,7 @@ namespace lmj {
 
         [[nodiscard]] constexpr size_type _get_index_read(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
-            while (_is_set[_idx] == 2 || (_is_set[_idx] == 1 && _table[_idx].first != _key)) {
+            while (_is_set[_idx] == active_enum::TOMBSTONE || (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first != _key)) {
                 _idx = _new_idx(_idx);
             }
             return _idx;
@@ -135,7 +140,7 @@ namespace lmj {
 
         [[nodiscard]] constexpr size_type _get_index_write(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
-            while (_is_set[_idx] == 1 && _table[_idx].first != _key) {
+            while (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first != _key) {
                 _idx = _new_idx(_idx);
             }
             return _idx;

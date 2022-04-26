@@ -19,6 +19,11 @@ namespace lmj {
         size_type _capacity{};
         hash_type _hasher{};
 
+        enum active_enum : bool_type {
+            ACTIVE = 1,
+            TOMBSTONE = 2
+        };
+
         hash_table() {
             _alloc_size(128);
         }
@@ -66,7 +71,7 @@ namespace lmj {
                 return *this;
             _alloc_size(other._capacity);
             for (size_type i = 0; i < other._capacity; ++i) {
-                if (other._is_set[i] == 1) {
+                if (other._is_set[i] == active_enum::ACTIVE) {
                     new(&_table[i]) pair_type(other._table[i]);
                 }
                 _is_set[i] = other._is_set[i];
@@ -91,11 +96,11 @@ namespace lmj {
 
         value_type &get(key_type const &_key) {
             size_type _idx = _get_index_read(_key);
-            return (_is_set[_idx] == 1) ? _table[_idx].second : emplace(_key, value_type{});
+            return (_is_set[_idx] == active_enum::ACTIVE) ? _table[_idx].second : emplace(_key, value_type{});
         }
 
         bool contains(key_type const &_key) {
-            return _is_set[_get_index_read(_key)] == 1;
+            return _is_set[_get_index_read(_key)] == active_enum::ACTIVE;
         }
 
         void erase(key_type const &_key) {
@@ -104,11 +109,11 @@ namespace lmj {
 
         void remove(key_type const &_key) {
             size_type _idx = _get_index_read(_key);
-            if (_is_set[_idx] == 1) {
+            if (_is_set[_idx] == active_enum::ACTIVE) {
                 --_elem_count;
                 _table[_idx].~pair_type();
                 std::memset(&_table[_idx], 0, sizeof(pair_type));
-                _is_set[_idx] = 2;
+                _is_set[_idx] = active_enum::TOMBSTONE;
             }
         }
 
@@ -123,10 +128,10 @@ namespace lmj {
             assert(sizeof...(_pack));
             auto _p = pair_type{_pack...};
             size_type _idx = _get_index_write(_p.first);
-            if (_is_set[_idx] == 1)
+            if (_is_set[_idx] == active_enum::ACTIVE)
                 return _table[_idx].second;
             ++_elem_count;
-            _is_set[_idx] = 1;
+            _is_set[_idx] = active_enum::ACTIVE;
             new(&_table[_idx]) pair_type(_p);
             return _table[_idx].second;
         }
@@ -166,7 +171,7 @@ namespace lmj {
 
         [[nodiscard]] size_type _get_index_read(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
-            while (_is_set[_idx] == 2 || (_is_set[_idx] == 1 && _table[_idx].first != _key)) {
+            while (_is_set[_idx] == active_enum::TOMBSTONE || (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first != _key)) {
                 _idx = _new_idx(_idx);
             }
             return _idx;
@@ -174,7 +179,7 @@ namespace lmj {
 
         [[nodiscard]] size_type _get_index_write(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
-            while (_is_set[_idx] == 1 && _table[_idx].first != _key) {
+            while (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first != _key) {
                 _idx = _new_idx(_idx);
             }
             return _idx;
