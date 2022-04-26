@@ -22,8 +22,7 @@ namespace lmj::lagrange {
         static_vector<point, num_pairs> v;
         format_helper(v, pack...);
         std::array<point, num_pairs> res{};
-        for (std::size_t i = 0; i < num_pairs; ++i) // std::copy isn't constexpr in C++17
-            res[i] = v[i];
+        std::copy(v.begin(), v.end(), res.begin());
         return res;
     }
 
@@ -48,6 +47,6 @@ namespace lmj::lagrange {
      * @return
      */
     constexpr auto get_function(Numbers auto &&... points) {
-        return [=](long double x) { return interpolate(x, data_format(points...)); };
+        return [points...](long double x) { return interpolate(x, data_format(points...)); };
     }
 }
