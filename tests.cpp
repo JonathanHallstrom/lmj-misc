@@ -20,6 +20,15 @@ namespace lmj {
     }
 }
 
+struct vec4 {
+    union {
+        struct {
+            float x, y, z, w;
+        };
+        float arr[4];
+    };
+};
+
 int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
@@ -122,9 +131,14 @@ int main() {
                 stud[key] = val;
             }
         }
-
         for (auto &[key, val]: cmp)
             assert(stud[key] == val);
     }
+
+    vec4 v{};
+    v.arr[0] = 2;
+    v.y = 4;
+    v.z = 3;
+    v.arr[2] = 2;
 
 }
