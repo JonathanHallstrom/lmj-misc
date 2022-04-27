@@ -56,7 +56,7 @@ int main() {
         static_assert(f(1) == 1);
         static_assert(f(2) == 4);
         static_assert(f(3) == 9);
-        static_assert(lmj::lagrange::get_function(0, 0, 2, 3, 5, 20)(3) == 7.0l);
+        static_assert(lmj::lagrange::get_function(0, 0, 2, 3, 5, 20)(3) == 7);
     }
     {
         static_assert(lmj::hypot(3, 4) == 5);
