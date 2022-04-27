@@ -46,7 +46,7 @@ namespace lmj::lagrange {
      * @param points
      * @return
      */
-    constexpr auto get_function(Numbers auto &&... points) {
-        return [points...](long double x) { return interpolate(x, data_format(points...)); };
+    constexpr auto get_function(numbers auto &&... points) {
+        return [=](long double x) { return interpolate(x, data_format(points...)); };
     }
 }

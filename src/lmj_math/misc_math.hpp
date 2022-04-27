@@ -76,21 +76,49 @@ namespace lmj {
      * @throws std::out_of_range if x < 0
      * @return square root of x
      */
-    constexpr auto sqrt(Number auto &&x) {
+    constexpr auto sqrt(number auto &&x) {
         if (x < 0)
             throw std::out_of_range("can't take square root of negative number");
         return newtons_method([=](long double _x) { return _x * _x - x; });
     }
 
-    constexpr auto sum_squares(Number auto &&x) {
+    constexpr auto sum_squares(number auto &&x) {
         return x * x;
     }
 
-    constexpr auto sum_squares(Number auto &&x, Numbers auto &&... pack) {
+    constexpr auto sum_squares(number auto &&x, numbers auto &&... pack) {
         return x * x + sum_squares(pack...);
     }
 
-    constexpr auto hypot(Numbers auto &&... v) {
+    constexpr auto hypot(numbers auto &&... v) {
         return lmj::sqrt(sum_squares(v...));
+    }
+
+    constexpr auto sigma(std::uint64_t n) {
+        std::uint64_t res = 1;
+        for (std::uint64_t p = 2; p * p <= n; p += 1 + (p & 1)) {
+            std::uint64_t a = 0;
+            while (n % p == 0)
+                n /= p, ++a;
+            if (a)
+                res *= (ipow(p, a + 1) - 1) / (p - 1);
+        }
+        if (n > 1)
+            res *= n + 1;
+        return res;
+    }
+
+    constexpr auto euler_totient(std::uint64_t n) {
+        std::uint64_t res = n;
+        for (std::uint64_t p = 2; p * p <= n; p += 1 + (p & 1)) {
+            std::uint64_t a = 0;
+            while (n % p == 0)
+                n /= p, ++a;
+            if (a)
+                res /= p, res *= p - 1;
+        }
+        if (n > 1)
+            res /= n, res *= n - 1;
+        return res;
     }
 }

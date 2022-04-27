@@ -19,15 +19,6 @@ namespace lmj {
     }
 }
 
-struct vec4 {
-    union {
-        struct {
-            float x, y, z, w;
-        };
-        float arr[4];
-    };
-};
-
 int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
@@ -47,9 +38,15 @@ int main() {
     }
     {
         lmj::hash_table<int, int> map;
-        map[2] = 2;
-        const auto map2 = map;
-        assert(map2.at(2) == 2);
+        for (int i = 0; i < 1024; ++i)
+            map[i] = i;
+        for (int i = 0; i < 1024; i += 2)
+            map.erase(i);
+        assert(map.size() == 512);
+        int sum = 0;
+        for (int i = 0; i < 1024; ++i)
+            sum += map[i];
+        assert(sum == 512 * 512); // sum of odd numbers up to and including 1023 = ((1023 - 1) / 2) ^ 2
     }
     {
         static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint8_t>::min()>()) == 1);
@@ -133,11 +130,4 @@ int main() {
         for (auto &[key, val]: cmp)
             assert(stud[key] == val);
     }
-
-    vec4 v{};
-    v.arr[0] = 2;
-    v.y = 4;
-    v.z = 3;
-    v.arr[2] = 2;
-
 }
