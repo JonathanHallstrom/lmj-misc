@@ -4,7 +4,6 @@
 #include "lmj_utils/lmj_utils.hpp"
 
 #include <limits>
-#include <cstdint>
 #include <iostream>
 #include <cmath>
 #include <iomanip>
@@ -53,11 +52,11 @@ int main() {
         assert(map2.at(2) == 2);
     }
     {
-        static_assert(sizeof(lmj::helper_funcs::needed_uint<std::numeric_limits<std::uint8_t>::min()>()) == 1);
-        static_assert(sizeof(lmj::helper_funcs::needed_uint<std::numeric_limits<std::uint8_t>::max()>()) == 1);
-        static_assert(sizeof(lmj::helper_funcs::needed_uint<std::numeric_limits<std::uint16_t>::max()>()) == 2);
-        static_assert(sizeof(lmj::helper_funcs::needed_uint<std::numeric_limits<std::uint32_t>::max()>()) == 4);
-        static_assert(sizeof(lmj::helper_funcs::needed_uint<std::numeric_limits<std::uint64_t>::max()>()) == 8);
+        static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint8_t>::min()>()) == 1);
+        static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint8_t>::max()>()) == 1);
+        static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint16_t>::max()>()) == 2);
+        static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint32_t>::max()>()) == 4);
+        static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint64_t>::max()>()) == 8);
     }
     {
         constexpr auto f = lmj::lagrange::get_function(0, 0, 0.5, 0.25, 1, 1); // y = x^2

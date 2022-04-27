@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../lmj_utils/lmj_utils.hpp"
 #include <numeric>
 #include <limits>
+#include "container_helpers.hpp"
 
 namespace lmj {
     template<class T, std::size_t _capacity>
     struct static_vector {
-        using size_type = decltype(helper_funcs::needed_uint<_capacity>());
+        using size_type = decltype(needed_uint<_capacity>());
 
         T _data[_capacity]{};
         size_type _size{};

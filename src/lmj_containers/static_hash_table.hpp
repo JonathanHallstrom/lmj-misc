@@ -4,12 +4,14 @@
 #include <functional>
 #include <cstdint>
 #include "../lmj_utils/lmj_utils.hpp"
+#include "container_helpers.hpp"
 
 namespace lmj {
+
     template<class key_type, class value_type, std::size_t _capacity, class hash_type = lmj::hash<key_type>>
     struct static_hash_table {
         using pair_type = std::pair<key_type, value_type>;
-        using size_type = decltype(helper_funcs::needed_uint<_capacity>());
+        using size_type = decltype(needed_uint<_capacity>());
         using bool_type = std::uint8_t;
         pair_type _table[_capacity]{};
         bool_type _is_set[_capacity]{};

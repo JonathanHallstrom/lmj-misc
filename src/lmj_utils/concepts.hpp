@@ -17,11 +17,10 @@ namespace lmj {
 
     template<class T, class... G>
     constexpr bool all_number_helper() {
-        if constexpr(sizeof...(G)) {
+        if constexpr(sizeof...(G))
             return Number<T> && all_number_helper<G...>();
-        } else {
+        else
             return Number<T>;
-        }
     }
 
     template<class... T> concept Numbers = all_number_helper<T...>();

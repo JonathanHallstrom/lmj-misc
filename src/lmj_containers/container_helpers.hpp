@@ -1,9 +1,6 @@
 #pragma once
 
-#include <cstdint>
-#include <limits>
-
-namespace lmj::helper_funcs {
+namespace lmj {
     template<std::size_t n>
     constexpr auto needed_uint() {
         if constexpr (n <= std::numeric_limits<std::uint8_t>::max()) {
