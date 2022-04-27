@@ -1,3 +1,3 @@
-# animated-pancake
+# lmj-misc
 
-header only library of shitty data structures and algorithms for learning
+header only library of data structures and algorithms (mostly for my own education)
