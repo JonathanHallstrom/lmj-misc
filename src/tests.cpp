@@ -65,8 +65,7 @@ int main() {
         static_assert(lmj::sum_squares(-9, 3) == 90);
         static_assert(lmj::ipow(0.5, 4) == 0.0625);
         for (int i = 0; i < 10000; ++i)
-            if (lmj::abs(std::exp((long double) i) - lmj::exp(i)) / std::exp((long double) i) >= 1e-15)
-                exit(-1);
+            assert(lmj::abs(std::exp((long double) i) - lmj::exp(i)) / std::exp((long double) i) < 1e-15);
     }
     {
         std::cerr << std::setprecision(100000);
