@@ -3,4 +3,4 @@ project(lmj)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(lmj tests.cpp)
+add_executable(lmj src/tests.cpp)
