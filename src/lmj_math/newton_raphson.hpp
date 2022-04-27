@@ -22,10 +22,9 @@ namespace lmj {
             x -= dx;
         } while (dx > epsilon || -dx > epsilon);
 
-        auto extra_iters = 4;
-        while (extra_iters--) {
-            dx = f(x) / f_prim(x);
-            x -= dx;
+        auto extra_iterations = 4;
+        while (extra_iterations--) {
+            x -= f(x) / f_prim(x);
         }
         return x;
     }

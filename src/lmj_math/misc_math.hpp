@@ -76,10 +76,19 @@ namespace lmj {
      * @throws std::out_of_range if x < 0
      * @return square root of x
      */
-    constexpr auto sqrt(Number auto &&x) {
+    constexpr auto sqrt(Number auto && x) {
         if (x < 0)
             throw std::out_of_range("can't take square root of negative number");
-        return newtons_method([=](long double _x) { return _x * _x - x; });
+        long double root = x;
+        long double dx = x;
+        do {
+            dx = (root * root - x) / (2 * root);
+            root -= dx;
+        } while (dx > 1e-5 || -dx > 1e-5);
+        auto extra_iterations = 4;
+        while (extra_iterations--)
+            root -= (root * root - x) / (2 * root);
+        return root;
     }
 
     constexpr auto sum_squares(Number auto &&x) {
