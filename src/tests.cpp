@@ -34,7 +34,7 @@ int main() {
         }();
         constexpr auto sum = [&]() {
             auto res = 0;
-            for (int i = 0; i < 128; ++i)
+            for (int i = 0; i < 50; ++i)
                 res += result_map.at(i);
             return res;
         }();
