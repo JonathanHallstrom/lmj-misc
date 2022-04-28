@@ -69,7 +69,7 @@ namespace lmj {
         }
 
         hash_table &operator=(hash_table const &other) {
-            if (this == &other)
+            if (this == &other || this->_table == other._table || this->_is_set == other._is_set)
                 return *this;
             _alloc_size(other._capacity);
             for (size_type i = 0; i < other._capacity; ++i) {
