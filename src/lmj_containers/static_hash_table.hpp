@@ -9,7 +9,8 @@
 namespace lmj {
 
     template<class key_type, class value_type, std::size_t _capacity, class hash_type = lmj::hash<key_type>>
-    struct static_hash_table {
+    class static_hash_table {
+    public:
         using pair_type = std::pair<key_type, value_type>;
         using size_type = decltype(needed_uint<_capacity>());
         using bool_type = std::uint8_t;
