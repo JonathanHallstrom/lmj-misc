@@ -54,7 +54,7 @@ namespace lmj {
     }
 
     /**
-     * @brief only use if std::exp is not available for compile time programming, this is much slower than std::exp
+     * @brief only use if std::exp is not available for constexpr, this is much slower than std::exp
      * @param x
      * @return e ^ x
      */
@@ -98,12 +98,12 @@ namespace lmj {
         return x * x;
     }
 
-    constexpr auto sum_squares(number auto &&x, numbers auto &&... pack) {
-        return x * x + sum_squares(pack...);
+    constexpr auto sum_squares(number auto &&x, numbers auto &&... nums) {
+        return x * x + sum_squares(nums...);
     }
 
-    constexpr auto hypot(numbers auto &&... v) {
-        return lmj::sqrt(sum_squares(v...));
+    constexpr auto hypot(numbers auto &&... nums) {
+        return lmj::sqrt(sum_squares(nums...));
     }
 
     constexpr auto sigma(std::uint64_t n) {
