@@ -7,7 +7,6 @@
 #include "container_helpers.hpp"
 
 namespace lmj {
-
     template<class key_type, class value_type, std::size_t _capacity, class hash_type = lmj::hash<key_type>>
     class static_hash_table {
     public:
@@ -94,7 +93,8 @@ namespace lmj {
          * @return whether _key is in table
          */
         constexpr bool contains(key_type const &_key) {
-            return _is_set[_get_index_read(_key)] == active_enum::ACTIVE;
+            size_type _idx = _get_index_read(_key);
+            return _is_set[_idx] == active_enum::ACTIVE && _table[_idx].first == _key;
         }
 
         /**
@@ -119,7 +119,7 @@ namespace lmj {
         /**
          * @param _key
          * @param _value
-         * @return reference to _value in vector
+         * @return reference to _value in table
          */
         constexpr value_type &insert(key_type const &_key, value_type const &_value) {
             return emplace(_key, _value);

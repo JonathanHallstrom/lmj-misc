@@ -7,7 +7,6 @@
 #include <cstdint>
 
 namespace lmj {
-
     template<class key_type, class value_type, class hash_type = std::hash<key_type>>
     class hash_table {
     public:
@@ -83,64 +82,113 @@ namespace lmj {
             return *this;
         }
 
+        bool operator==(hash_table const &other) const {
+            if (other.size() != this->size())
+                return false;
+            for (std::size_t i = 0; i < _capacity; ++i) {
+                if (_is_set[i] == active_enum::ACTIVE) {
+                    size_type _idx = other._get_index_read(_table[i].second);
+                    if (other._is_set[_idx] != active_enum::ACTIVE)
+                        return false;
+                    if (other._table[_idx].second != _table[i].second)
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        /**
+         * @return reference to value associated with _key or default constructs value if it doesn't exist
+         */
         value_type &operator[](key_type const &_key) {
             return get(_key);
         }
 
-        value_type const &operator[](key_type const &_key) const {
-            return get(_key);
+        /**
+         * @return value at _key or fails
+         */
+        value_type const &at(key_type const &_key) const {
+            size_type _idx = _get_index_read(_key);
+            assert(_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first == _key && "key not found");
+            return _table[_idx].second;
         }
 
-        value_type &at(key_type const &_key) const {
-            return _table[_get_index_read(_key)].second;
-        }
-
+        /**
+         * @brief gets value at _key or creates new value at _key with default value
+         * @return reference to value associated with _key
+         */
         value_type &get(key_type const &_key) {
             size_type _idx = _get_index_read(_key);
-            return (_is_set[_idx] == active_enum::ACTIVE) ? _table[_idx].second : emplace(_key, value_type{});
+            return (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first == _key) ?
+                   _table[_idx].second : emplace(_key, value_type{});
         }
 
-        bool contains(key_type const &_key) const {
-            return _is_set[_get_index_read(_key)] == active_enum::ACTIVE;
+        /**
+         * @return whether _key is in table
+         */
+        bool contains(key_type const &_key) {
+            size_type _idx = _get_index_read(_key);
+            return _is_set[_idx] == active_enum::ACTIVE && _table[_idx].first == _key;
         }
 
+        /**
+         * @param _key key which is removed from table
+         */
         void erase(key_type const &_key) {
             remove(_key);
         }
 
+        /**
+         * @param _key key which is removed from table
+         */
         void remove(key_type const &_key) {
             size_type _idx = _get_index_read(_key);
             if (_is_set[_idx] == active_enum::ACTIVE) {
                 --_elem_count;
                 _table[_idx].~pair_type();
-                std::memset(&_table[_idx], 0, sizeof(pair_type));
                 _is_set[_idx] = active_enum::TOMBSTONE;
             }
         }
 
+        /**
+         * @param _key
+         * @param _value
+         * @return reference to _value in table
+         */
         value_type &insert(key_type const &_key, value_type const &_value) {
             return emplace(_key, _value);
         }
 
+        /**
+         * @param _pack arguments for constructing element
+         * @return  reference to newly constructed value
+         */
         template<class... _types>
         value_type &emplace(_types &&... _pack) {
             if (_should_grow())
                 _grow();
-            assert(sizeof...(_pack));
+            static_assert(sizeof...(_pack));
             auto _p = pair_type{_pack...};
-            size_type _idx = _get_index_write(_p.first);
-            if (_is_set[_idx] == active_enum::ACTIVE)
+            size_type _idx = _get_index_read(_p.first);
+            if (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first == _p.first)
                 return _table[_idx].second;
+            _idx = _get_writable_index(_p.first);
             ++_elem_count;
             _is_set[_idx] = active_enum::ACTIVE;
             new(&_table[_idx]) pair_type(_p);
             return _table[_idx].second;
         }
 
+        /**
+         * @return number of elements
+         */
         [[nodiscard]] size_type size() const {
             return _elem_count;
         }
 
+        /**
+         * @return capacity of table
+         */
         [[nodiscard]] size_type capacity() const {
             return _capacity;
         }
@@ -172,16 +220,21 @@ namespace lmj {
 
         [[nodiscard]] size_type _get_index_read(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
+            std::size_t _iterations = 0;
             while (_is_set[_idx] == active_enum::TOMBSTONE ||
                    (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first != _key)) {
+                if (_iterations++ == _capacity)
+                    return _idx;
                 _idx = _new_idx(_idx);
             }
             return _idx;
         }
 
-        [[nodiscard]] size_type _get_index_write(key_type const &_key) const {
+        [[nodiscard]] size_type _get_writable_index(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
+            std::size_t _iterations = 0;
             while (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first != _key) {
+                assert(_iterations++ < _capacity && "element not found");
                 _idx = _new_idx(_idx);
             }
             return _idx;

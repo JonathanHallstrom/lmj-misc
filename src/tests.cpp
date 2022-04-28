@@ -173,6 +173,5 @@ int main() {
         lmj::debug(std::vector(std::begin(table_1._table), std::end(table_1._table)));
         lmj::debug(std::vector(std::begin(table_2._table), std::end(table_2._table)));
         static_assert(table_1 == table_2);
-        lmj::debug("hello why is it compiling?!?!?!?");
     }
 }
