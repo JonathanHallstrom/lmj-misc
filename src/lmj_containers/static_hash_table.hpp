@@ -55,8 +55,7 @@ namespace lmj {
 
         constexpr value_type const &at(key_type const &_key) const {
             size_type _idx = _get_index_read(_key);
-            if (_is_set[_idx] != active_enum::ACTIVE)
-                throw std::out_of_range("index not found");
+            assert(_is_set[_idx] == active_enum::ACTIVE && "index not found");
             return _table[_idx].second;
         }
 

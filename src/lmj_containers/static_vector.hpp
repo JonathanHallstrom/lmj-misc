@@ -22,7 +22,7 @@ namespace lmj {
         // creates a static_vector with capacity 10, size 5 and all elements set to 0
         constexpr explicit static_vector(size_type _n, T const &_value = T{}) {
             _size = _n;
-            for (T &_elem: *this) {  // initialize all elements of vector
+            for (T &_elem: _data) {  // initialize all elements of vector
                 _elem = _value;
             }
         }
@@ -35,7 +35,7 @@ namespace lmj {
             return _capacity;
         }
 
-        // forwards to emplace_back
+        // forward to emplace_back
         template<class G>
         constexpr auto &push_back(G &&elem) {
             return emplace_back(std::forward<G>(elem));
@@ -44,64 +44,89 @@ namespace lmj {
         // constructs element at index _size, if _size = _capacity you get undefined behaviour
         template<class...Args>
         constexpr auto &emplace_back(Args &&... args) {
+            assert(_size < _capacity && "out of space in static_vector");
             return _data[_size++] = T(std::forward<Args &&...>(args...));
         }
 
-        // subscript operator
-        // for example
-        // static_vector<int, 10> foo(5);
-        // int bar = foo[2]; <- subscript operator
+        /**
+         * @param index
+         * @return element at index
+         */
         [[nodiscard]] constexpr auto &operator[](size_type idx) {
             return _data[idx];
         }
 
-        // non-modifying subscript operator
+        /**
+         * @param index
+         * @return element at index
+         */
         constexpr auto const &operator[](size_type idx) const {
             return _data[idx];
         }
 
-        // get first element
+        /**
+         * @return first element
+         */
         [[nodiscard]] constexpr auto &front() {
             return _data[0];
         }
 
-        // get first element
+        /**
+         * @return first element
+         */
         [[nodiscard]] constexpr auto const &front() const {
             return _data[0];
         }
 
-        // get last element
+        /**
+         * @return last element
+         */
         [[nodiscard]] constexpr auto &back() {
             return _data[_size - 1];
         }
 
-        // get last element
+        /**
+         * @return last element
+         */
         [[nodiscard]] constexpr auto const &back() const {
             return _data[_size - 1];
         }
 
-        // return last element and decrease size by 1
-        // DOESN'T ACTUALLY DESTROY ANY ELEMENTS
-        constexpr auto pop_back() {
-            return _data[--_size];
+        /**
+         * @brief removes last element
+         */
+        constexpr void pop_back() {
+            assert(_size && "no element to pop");
+            --_size;
+            _data[_size].~T();
         }
 
-        // set size to 0
-        // DOESN'T ACTUALLY DESTROY ANY ELEMENTS
+        /**
+         * @brief remove all elements
+         */
         constexpr void clear() {
+            for (size_type i = 0; i < _size; ++i)
+                _data[i].~T();
             _size = 0;
         }
 
+        /**
+         * @return whether vector is empty
+         */
         [[nodiscard]] constexpr bool empty() {
             return !_size;
         }
 
-        // pointer to beginning of data_format
+        /**
+         * @return pointer to data
+         */
         [[nodiscard]] constexpr auto begin() const {
             return _data;
         }
 
-        // pointer to one past the end for iteration
+        /**
+         * @return pointer to end
+         */
         [[nodiscard]] constexpr auto end() const {
             return _data + _size;
         }
