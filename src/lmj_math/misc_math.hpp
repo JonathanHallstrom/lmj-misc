@@ -76,46 +76,49 @@ namespace lmj {
      * @throws std::out_of_range if x < 0
      * @return square root of x
      */
-    constexpr auto sqrt(Number auto && x) {
+    constexpr auto sqrt(number auto &&x) {
         if (x < 0)
             throw std::out_of_range("can't take square root of negative number");
-        long double root = x;
-        long double dx = x;
-        do {
-            dx = (root * root - x) / (2 * root);
-            root -= dx;
-        } while (dx > 1e-5 || -dx > 1e-5);
-        auto extra_iterations = 4;
-        while (extra_iterations--)
-            root -= (root * root - x) / (2 * root);
-        return root;
+        return newtons_method([=](long double _x) { return _x * _x - x; });
     }
 
-    constexpr auto sum_squares(Number auto &&x) {
+    constexpr auto sum_squares(number auto &&x) {
         return x * x;
     }
 
-    constexpr auto sum_squares(Number auto &&x, Numbers auto &&... pack) {
+    constexpr auto sum_squares(number auto &&x, numbers auto &&... pack) {
         return x * x + sum_squares(pack...);
     }
 
-    constexpr auto hypot(Numbers auto &&... v) {
+    constexpr auto hypot(numbers auto &&... v) {
         return lmj::sqrt(sum_squares(v...));
     }
 
-    template<class T = unsigned long long>
-    auto rand() { // based on xorshift random number generator by George Marsaglia
-        static unsigned long long x = 230849599040350201, y = 965937400815267857, z = 895234450760720011;
-        unsigned long long t;
-        x ^= x << 16;
-        x ^= x >> 5;
-        x ^= x << 1;
+    constexpr auto sigma(std::uint64_t n) {
+        std::uint64_t res = 1;
+        for (std::uint64_t p = 2; p * p <= n; p += 1 + (p & 1)) {
+            std::uint64_t a = 0;
+            while (n % p == 0)
+                n /= p, ++a;
+            if (a)
+                res *= (ipow(p, a + 1) - 1) / (p - 1);
+        }
+        if (n > 1)
+            res *= n + 1;
+        return res;
+    }
 
-        t = x;
-        x = y;
-        y = z;
-        z = t ^ x ^ y;
-
-        return (T) z;
+    constexpr auto euler_totient(std::uint64_t n) {
+        std::uint64_t res = n;
+        for (std::uint64_t p = 2; p * p <= n; p += 1 + (p & 1)) {
+            std::uint64_t a = 0;
+            while (n % p == 0)
+                n /= p, ++a;
+            if (a)
+                res /= p, res *= p - 1;
+        }
+        if (n > 1)
+            res /= n, res *= n - 1;
+        return res;
     }
 }

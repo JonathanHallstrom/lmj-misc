@@ -4,7 +4,6 @@
 #include "lmj_utils/lmj_utils.hpp"
 
 #include <limits>
-#include <cstdint>
 #include <iostream>
 #include <cmath>
 #include <iomanip>
@@ -43,16 +42,22 @@ int main() {
     }
     {
         lmj::hash_table<int, int> map;
-        map[2] = 2;
-        const auto map2 = map;
-        assert(map2.at(2) == 2);
+        for (int i = 0; i < 1024; ++i)
+            map[i] = i;
+        for (int i = 0; i < 1024; i += 2)
+            map.erase(i);
+        assert(map.size() == 512);
+        int sum = 0;
+        for (int i = 0; i < 1024; ++i)
+            sum += map[i];
+        assert(sum == 512 * 512); // sum of odd numbers up to and including 1023 = ((1023 - 1) / 2) ^ 2
     }
     {
-        static_assert(sizeof(lmj::helper_funcs::needed_uint<std::numeric_limits<std::uint8_t>::min()>()) == 1);
-        static_assert(sizeof(lmj::helper_funcs::needed_uint<std::numeric_limits<std::uint8_t>::max()>()) == 1);
-        static_assert(sizeof(lmj::helper_funcs::needed_uint<std::numeric_limits<std::uint16_t>::max()>()) == 2);
-        static_assert(sizeof(lmj::helper_funcs::needed_uint<std::numeric_limits<std::uint32_t>::max()>()) == 4);
-        static_assert(sizeof(lmj::helper_funcs::needed_uint<std::numeric_limits<std::uint64_t>::max()>()) == 8);
+        static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint8_t>::min()>()) == 1);
+        static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint8_t>::max()>()) == 1);
+        static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint16_t>::max()>()) == 2);
+        static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint32_t>::max()>()) == 4);
+        static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint64_t>::max()>()) == 8);
     }
     {
         constexpr auto f = lmj::lagrange::get_function(0, 0, 0.5, 0.25, 1, 1); // y = x^2
@@ -125,9 +130,7 @@ int main() {
                 stud[key] = val;
             }
         }
-
         for (auto &[key, val]: cmp)
             assert(stud[key] == val);
     }
-
 }
