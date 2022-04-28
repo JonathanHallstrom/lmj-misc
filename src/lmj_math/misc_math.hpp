@@ -1,6 +1,7 @@
 #pragma once
 
 #include "newton_raphson.hpp"
+#include "../lmj_containers/container_helpers.hpp"
 #include <cmath>
 #include <ranges>
 #include <cassert>
@@ -12,7 +13,9 @@ namespace lmj {
      * @throws std::out_of_range if exp = base = 0
      * @return base ^ exp
      */
-    constexpr auto ipow(auto base, unsigned exp) -> decltype(base) {
+    constexpr auto ipow(auto base, integral auto exp) -> decltype(base) {
+        if constexpr (signed_integral<decltype(exp)>)
+            assert(exp >= 0);
         if (exp == 1)
             return base;
         if (exp == 0 && base != 0.0)
