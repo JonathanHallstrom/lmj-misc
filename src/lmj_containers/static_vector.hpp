@@ -6,7 +6,8 @@
 
 namespace lmj {
     template<class T, std::size_t _capacity>
-    struct static_vector {
+    class static_vector {
+    public:
         using size_type = decltype(needed_uint<_capacity>());
 
         T _data[_capacity]{};
