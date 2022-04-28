@@ -10,13 +10,11 @@
 #include <iomanip>
 #include <map>
 
-namespace lmj {
-    void apply_to_all_recursively(auto &x, auto &&f) {
-        if constexpr (iterable<decltype(x)>) {
-            for (auto &i: x) apply_to_all_recursively(i, f);
-        } else {
-            f(x);
-        }
+void apply_to_all_recursively(auto &x, auto &&f) {
+    if constexpr (lmj::iterable<decltype(x)>) {
+        for (auto &i: x) apply_to_all_recursively(i, f);
+    } else {
+        f(x);
     }
 }
 
@@ -35,7 +33,13 @@ int main() {
                 map[i] = i;
             return map;
         }();
-        static_assert(result_map.at(2) == 2);
+        constexpr auto sum = [&]() {
+            auto res = 0;
+            for (int i = 0; i < 128; ++i)
+                res += result_map.at(i);
+            return res;
+        }();
+        static_assert(sum == 50 * 49 / 2);
     }
     {
         lmj::hash_table<int, int> map;
@@ -71,7 +75,7 @@ int main() {
         std::cerr << std::setprecision(100000);
         std::array<std::array<int, 20>, 20> ar{};
         int idx = 0;
-        lmj::apply_to_all_recursively(ar, [&](auto &x) { x = 1 + idx++ % 9; });
+        apply_to_all_recursively(ar, [&](auto &x) { x = 1 + idx++ % 9; });
         lmj::debug(ar);
         lmj::debug("hej hopp");
         lmj::debug(1, 2, 3);
