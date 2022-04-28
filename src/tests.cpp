@@ -8,6 +8,7 @@
 #include <cmath>
 #include <iomanip>
 #include <map>
+#include <fstream>
 
 void apply_to_all_recursively(auto &x, auto &&f) {
     if constexpr (lmj::iterable<decltype(x)>) {
