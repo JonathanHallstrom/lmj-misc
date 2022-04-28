@@ -111,7 +111,7 @@ namespace lmj {
             size_type _idx = _get_index_read(_key);
             if (_is_set[_idx] == active_enum::ACTIVE) {
                 --_elem_count;
-                _table[_idx].~pair_type();
+                _table[_idx] = pair_type{};
                 _is_set[_idx] = active_enum::TOMBSTONE;
             }
         }
@@ -140,8 +140,8 @@ namespace lmj {
             _idx = _get_writable_index(_p.first);
             ++_elem_count;
             _is_set[_idx] = active_enum::ACTIVE;
-            _table[_idx].first = _p.first;
-            return _table[_idx].second = _p.second;
+            _table[_idx] = _p;
+            return _table[_idx].second;
         }
 
         /**
