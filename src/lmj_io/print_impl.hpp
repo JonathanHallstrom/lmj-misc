@@ -30,7 +30,7 @@ namespace lmj {
     constexpr void print_impl_pretty(print_stream auto &out, T &&x);
 
     template<class T, class G>
-    constexpr void print_impl_pretty(print_stream auto &out, std::pair<T, G> &&p) {
+    constexpr void print_impl_pretty(print_stream auto &out, std::pair<T, G> const &p) {
         out << '{';
         print_impl_pretty(out, p.first);
         out << ", ";
@@ -56,8 +56,20 @@ namespace lmj {
         out << '}';
     }
 
+
     constexpr void print_impl(print_stream auto &out, printable auto &&x) {
         out << x;
+    }
+
+    template<class T>
+    requires iterable<T> && (!std::is_convertible_v<T, std::string>)
+    constexpr void print_impl(print_stream auto &out, T &&x);
+
+    template<class T, class G>
+    constexpr void print_impl(print_stream auto &out, std::pair<T, G> const &p) {
+        print_impl(out, p.first);
+        out << ' ';
+        print_impl(out, p.second);
     }
 
     template<class T>
@@ -65,12 +77,8 @@ namespace lmj {
     constexpr void print_impl(print_stream auto &out, T &&x) {
         auto first = true;
         for (auto &&i: x) {
-            if (!first) {
-                if constexpr (iterable<decltype(i)>)
-                    out << "\n";
-                else
-                    out << " ";
-            }
+            if (!first)
+                out << ' ';
             first = false;
             print_impl(out, i);
         }

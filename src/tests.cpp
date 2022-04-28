@@ -133,4 +133,44 @@ int main() {
         for (auto &[key, val]: cmp)
             assert(stud[key] == val);
     }
+    lmj::static_hash_table<int, int, 2> t;
+    t[2] = 0;
+    t[4] = 0;
+    lmj::debug(t._table[0], (int) t._is_set[0]);
+    lmj::debug(t._table[1], (int) t._is_set[1]);
+    t.erase(2);
+    lmj::debug(t._table[0], (int) t._is_set[0]);
+    lmj::debug(t._table[1], (int) t._is_set[1]);
+    t[1] = 1;
+    lmj::debug(t._table[0], (int) t._is_set[0]);
+    lmj::debug(t._table[1], (int) t._is_set[1]);
+    lmj::debug(t.at(1));
+    assert(t.at(1) == 1);
+    {
+        constexpr auto table_1 = []() {
+            lmj::static_hash_table<int, int, 128> t;
+            for (int i = 0; i < 100; ++i)
+                t[i] = i;
+            return t;
+        }();
+        constexpr auto table_2 = []() {
+            lmj::static_hash_table<int, int, 128> t;
+            lmj::static_vector<int, 128> temp_vec;
+            size_t state = 1371463783;
+            for (int i = 0; i < 100; ++i) {
+                state = state * 2901110977 + 1703049143;
+                temp_vec.push_back(state);
+                t[state] = 0xBADF00D;
+            }
+            for (int i = 0; i < 100; ++i) {
+                t.erase(temp_vec[i]);
+                t[i] = i;
+            }
+            return t;
+        }();
+        lmj::debug(std::vector(std::begin(table_1._table), std::end(table_1._table)));
+        lmj::debug(std::vector(std::begin(table_2._table), std::end(table_2._table)));
+        static_assert(table_1 == table_2);
+        lmj::debug("hello why is it compiling?!?!?!?");
+    }
 }

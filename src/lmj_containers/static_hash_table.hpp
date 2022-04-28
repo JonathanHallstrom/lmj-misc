@@ -49,6 +49,21 @@ namespace lmj {
             return *this;
         }
 
+        constexpr bool operator==(static_hash_table const &other) const {
+            if (other.size() != this->size())
+                return false;
+            for (std::size_t i = 0; i < _capacity; ++i) {
+                if (_is_set[i] == active_enum::ACTIVE) {
+                    size_type _idx = other._get_index_read(_table[i].second);
+                    if (other._is_set[_idx] != active_enum::ACTIVE)
+                        return false;
+                    if (other._table[_idx].second != _table[i].second)
+                        return false;
+                }
+            }
+            return true;
+        }
+
         /**
          * @return reference to value associated with _key or default constructs value if it doesn't exist
          */
@@ -61,7 +76,7 @@ namespace lmj {
          */
         constexpr value_type const &at(key_type const &_key) const {
             size_type _idx = _get_index_read(_key);
-            assert(_is_set[_idx] == active_enum::ACTIVE && "index not found");
+            assert(_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first == _key && "key not found");
             return _table[_idx].second;
         }
 
@@ -71,7 +86,8 @@ namespace lmj {
          */
         constexpr value_type &get(key_type const &_key) {
             size_type _idx = _get_index_read(_key);
-            return (_is_set[_idx] == active_enum::ACTIVE) ? _table[_idx].second : emplace(_key, value_type{});
+            return (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first == _key) ?
+                   _table[_idx].second : emplace(_key, value_type{});
         }
 
         /**
@@ -116,26 +132,27 @@ namespace lmj {
         template<class... _types>
         constexpr value_type &emplace(_types &&... _pack) {
             static_assert(sizeof...(_pack));
+            assert(_elem_count < _capacity);
             auto _p = pair_type{_pack...};
-            size_type _idx = _get_index_write(_p.first);
-            if (_is_set[_idx] == active_enum::ACTIVE)
+            size_type _idx = _get_index_read(_p.first);
+            if (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first == _p.first)
                 return _table[_idx].second;
+            _idx = _get_writable_index(_p.first);
             ++_elem_count;
             _is_set[_idx] = active_enum::ACTIVE;
             _table[_idx].first = _p.first;
-            _table[_idx].second = _p.second;
-            return _table[_idx].second;
+            return _table[_idx].second = _p.second;
         }
 
         /**
-         * @return size of vector
+         * @return number of elements
          */
         [[nodiscard]] constexpr size_type size() const {
             return _elem_count;
         }
 
         /**
-         * @return capacity of vector
+         * @return capacity of table
          */
         [[nodiscard]] constexpr size_type capacity() const {
             return _capacity;
@@ -171,16 +188,21 @@ namespace lmj {
 
         [[nodiscard]] constexpr size_type _get_index_read(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
+            std::size_t _iterations = 0;
             while (_is_set[_idx] == active_enum::TOMBSTONE ||
                    (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first != _key)) {
+                if (_iterations++ == _capacity)
+                    return _idx;
                 _idx = _new_idx(_idx);
             }
             return _idx;
         }
 
-        [[nodiscard]] constexpr size_type _get_index_write(key_type const &_key) const {
+        [[nodiscard]] constexpr size_type _get_writable_index(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
+            std::size_t _iterations = 0;
             while (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first != _key) {
+                assert(_iterations++ < _capacity && "element not found");
                 _idx = _new_idx(_idx);
             }
             return _idx;
