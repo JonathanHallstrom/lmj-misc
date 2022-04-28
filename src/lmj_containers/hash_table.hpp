@@ -16,6 +16,7 @@ namespace lmj {
         pair_type *_table{};
         bool_type *_is_set{};
         size_type _elem_count{};
+        size_type _tomb_count{};
         size_type _capacity{};
         hash_type _hasher{};
 
@@ -145,6 +146,7 @@ namespace lmj {
             size_type _idx = _get_index_read(_key);
             if (_is_set[_idx] == active_enum::ACTIVE) {
                 --_elem_count;
+                ++_tomb_count;
                 _table[_idx].~pair_type();
                 _is_set[_idx] = active_enum::TOMBSTONE;
             }
@@ -174,6 +176,7 @@ namespace lmj {
                 return _table[_idx].second;
             _idx = _get_writable_index(_p.first);
             ++_elem_count;
+            _tomb_count -= _is_set[_idx] == active_enum::TOMBSTONE;
             _is_set[_idx] = active_enum::ACTIVE;
             new(&_table[_idx]) pair_type(_p);
             return _table[_idx].second;
@@ -241,7 +244,7 @@ namespace lmj {
         }
 
         [[nodiscard]] bool _should_grow() const {
-            return _elem_count * 3 / 2 > _capacity;
+            return (_elem_count + _tomb_count) * 5 / 4 > _capacity;
         }
 
         void _grow() {
