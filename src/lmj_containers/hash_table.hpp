@@ -244,7 +244,7 @@ namespace lmj {
         }
 
         [[nodiscard]] bool _should_grow() const {
-            return (_elem_count + _tomb_count) * 5 / 4 > _capacity;
+            return (_elem_count + _tomb_count) * 3 / 2 > _capacity;
         }
 
         void _grow() {
