@@ -10,10 +10,10 @@ namespace lmj {
 
     template<class T>
     concept print_stream = requires(T x) {
-        { x << int{}};
-        { x << double{}};
-        { x << "" };
-        { x << ""s };
+        x << int{};
+        x << double{};
+        x << "";
+        x << ""s;
     };
 
     template<class T>
@@ -45,11 +45,10 @@ namespace lmj {
         auto first = true;
         for (auto &&i: x) {
             if (!first) {
-                if constexpr (iterable<decltype(i)>) {
+                if constexpr (iterable<decltype(i)>)
                     out << ",\n";
-                } else {
+                else
                     out << ", ";
-                }
             }
             first = false;
             print_impl_pretty(out, i);
@@ -67,11 +66,10 @@ namespace lmj {
         auto first = true;
         for (auto &&i: x) {
             if (!first) {
-                if constexpr (iterable<decltype(i)>) {
+                if constexpr (iterable<decltype(i)>)
                     out << "\n";
-                } else {
+                else
                     out << " ";
-                }
             }
             first = false;
             print_impl(out, i);
