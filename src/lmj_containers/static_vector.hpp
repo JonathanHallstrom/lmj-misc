@@ -13,7 +13,9 @@ namespace lmj {
         T _data[_capacity]{};
         size_type _size{};
 
-        // default constructor
+        /**
+         * @brief default construct vector
+         */
         constexpr static_vector() = default;
 
         /**
@@ -27,10 +29,16 @@ namespace lmj {
             }
         }
 
+        /**
+         * @return size of vector
+         */
         [[nodiscard]] constexpr std::size_t size() const {
             return _size;
         }
 
+        /**
+         * @return capacity of vector
+         */
         [[nodiscard]] constexpr std::size_t capacity() const {
             return _capacity;
         }
@@ -45,7 +53,6 @@ namespace lmj {
         }
 
         /**
-         *
          * @param _args arguments for constructing element
          * @return reference to newly constructed element
          */
