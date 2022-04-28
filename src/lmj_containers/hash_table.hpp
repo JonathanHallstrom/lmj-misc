@@ -60,6 +60,7 @@ namespace lmj {
             _elem_count = other._elem_count;
             _capacity = other._capacity;
             _hasher = other._hasher;
+            _tomb_count = other._tomb_count;
             other._is_set = nullptr;
             other._table = nullptr;
             other._elem_count = 0;
@@ -77,6 +78,7 @@ namespace lmj {
                 }
                 _is_set[i] = other._is_set[i];
             }
+            _tomb_count = 0;
             _elem_count = other._elem_count;
             _capacity = other._capacity;
             _hasher = other._hasher;
@@ -178,7 +180,7 @@ namespace lmj {
             ++_elem_count;
             _tomb_count -= _is_set[_idx] == active_enum::TOMBSTONE;
             _is_set[_idx] = active_enum::ACTIVE;
-            new(&_table[_idx]) pair_type(_p);
+            new(_table + _idx) pair_type(_p);
             return _table[_idx].second;
         }
 
@@ -244,7 +246,7 @@ namespace lmj {
         }
 
         [[nodiscard]] bool _should_grow() const {
-            return (_elem_count + _tomb_count) * 5 / 4 > _capacity;
+            return (_elem_count + _tomb_count) * 3 / 2 > _capacity;
         }
 
         void _grow() {
@@ -257,6 +259,7 @@ namespace lmj {
             _is_set = new bool_type[_new_capacity]{};
             _table = new pair_type[_new_capacity];
             _elem_count = 0;
+            _tomb_count = 0;
             _capacity = _new_capacity;
         }
     };
