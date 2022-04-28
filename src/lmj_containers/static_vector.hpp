@@ -16,10 +16,10 @@ namespace lmj {
         // default constructor
         constexpr static_vector() = default;
 
-        // size constructor
-        // for example:
-        // static_vector<int, 10> foo(5);
-        // creates a static_vector with capacity 10, size 5 and all elements set to 0
+        /**
+         * @param _n number of elements
+         * @param _value value elements are set to
+         */
         constexpr explicit static_vector(size_type _n, T const &_value = T{}) {
             _size = _n;
             for (T &_elem: _data) {  // initialize all elements of vector
@@ -35,39 +35,48 @@ namespace lmj {
             return _capacity;
         }
 
-        // forward to emplace_back
+        /**
+         * @param element
+         * @return reference to element
+         */
         template<class G>
-        constexpr auto &push_back(G &&elem) {
-            return emplace_back(std::forward<G>(elem));
+        constexpr auto &push_back(G &&_elem) {
+            return emplace_back(std::forward<G>(_elem));
         }
 
-        // constructs element at index _size, if _size = _capacity you get undefined behaviour
+        /**
+         *
+         * @param _args arguments for constructing element
+         * @return reference to newly constructed element
+         */
         template<class...Args>
-        constexpr auto &emplace_back(Args &&... args) {
+        constexpr auto &emplace_back(Args &&... _args) {
             assert(_size < _capacity && "out of space in static_vector");
-            return _data[_size++] = T(std::forward<Args &&...>(args...));
+            return _data[_size++] = T(std::forward<Args &&...>(_args...));
+        }
+
+        /**
+         * @param _idx index
+         * @return element at index
+         */
+        [[nodiscard]] constexpr auto &operator[](size_type _idx) {
+            return _data[_idx];
         }
 
         /**
          * @param index
          * @return element at index
          */
-        [[nodiscard]] constexpr auto &operator[](size_type idx) {
-            return _data[idx];
-        }
-
-        /**
-         * @param index
-         * @return element at index
-         */
-        constexpr auto const &operator[](size_type idx) const {
-            return _data[idx];
+        constexpr auto const &operator[](size_type _idx) const {
+            assert(_idx < _size && "no element to return");
+            return _data[_idx];
         }
 
         /**
          * @return first element
          */
         [[nodiscard]] constexpr auto &front() {
+            assert(_size && "no element to return");
             return _data[0];
         }
 
@@ -75,6 +84,7 @@ namespace lmj {
          * @return first element
          */
         [[nodiscard]] constexpr auto const &front() const {
+            assert(_size && "no element to return");
             return _data[0];
         }
 
@@ -82,6 +92,7 @@ namespace lmj {
          * @return last element
          */
         [[nodiscard]] constexpr auto &back() {
+            assert(_size && "no element to return");
             return _data[_size - 1];
         }
 
@@ -89,6 +100,7 @@ namespace lmj {
          * @return last element
          */
         [[nodiscard]] constexpr auto const &back() const {
+            assert(_size && "no element to return");
             return _data[_size - 1];
         }
 
@@ -97,8 +109,7 @@ namespace lmj {
          */
         constexpr void pop_back() {
             assert(_size && "no element to pop");
-            --_size;
-            _data[_size].~T();
+            _data[--_size].~T();
         }
 
         /**
@@ -111,21 +122,21 @@ namespace lmj {
         }
 
         /**
-         * @return whether vector is empty
+         * @return bool indicating whether vector is empty
          */
         [[nodiscard]] constexpr bool empty() {
             return !_size;
         }
 
         /**
-         * @return pointer to data
+         * @return pointer to beginning of elements
          */
         [[nodiscard]] constexpr auto begin() const {
             return _data;
         }
 
         /**
-         * @return pointer to end
+         * @return pointer to one past the end of elements
          */
         [[nodiscard]] constexpr auto end() const {
             return _data + _size;
