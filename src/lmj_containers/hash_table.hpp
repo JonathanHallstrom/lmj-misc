@@ -9,7 +9,8 @@
 namespace lmj {
 
     template<class key_type, class value_type, class hash_type = std::hash<key_type>>
-    struct hash_table {
+    class hash_table {
+    public:
         using pair_type = std::pair<const key_type, value_type>;
         using size_type = std::size_t;
         using bool_type = std::uint8_t;
@@ -32,11 +33,11 @@ namespace lmj {
             *this = other;
         }
 
-        hash_table(hash_table &&other) noexcept{
+        hash_table(hash_table &&other) noexcept {
             *this = std::move(other);
         }
 
-        explicit hash_table(hash_type _hasher) : _hasher(_hasher){
+        explicit hash_table(hash_type _hasher) : _hasher(_hasher) {
             _alloc_size(128);
         }
 
@@ -50,7 +51,7 @@ namespace lmj {
         }
 
         hash_table &operator=(hash_table &&other) noexcept {
-            if (this == &other)
+            if (this == &other || this->_table == other._table || this->_is_set == other._is_set)
                 return *this;
             delete[] _table;
             delete[] _is_set;
@@ -171,7 +172,8 @@ namespace lmj {
 
         [[nodiscard]] size_type _get_index_read(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
-            while (_is_set[_idx] == active_enum::TOMBSTONE || (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first != _key)) {
+            while (_is_set[_idx] == active_enum::TOMBSTONE ||
+                   (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first != _key)) {
                 _idx = _new_idx(_idx);
             }
             return _idx;
