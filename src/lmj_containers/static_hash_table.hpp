@@ -49,29 +49,48 @@ namespace lmj {
             return *this;
         }
 
+        /**
+         * @return reference to value associated with _key or default constructs value if it doesn't exist
+         */
         constexpr value_type &operator[](key_type const &_key) {
             return get(_key);
         }
 
+        /**
+         * @return value at _key or fails
+         */
         constexpr value_type const &at(key_type const &_key) const {
             size_type _idx = _get_index_read(_key);
             assert(_is_set[_idx] == active_enum::ACTIVE && "index not found");
             return _table[_idx].second;
         }
 
+        /**
+         * @brief gets value at _key or creates new value at _key with default value
+         * @return reference to value associated with _key
+         */
         constexpr value_type &get(key_type const &_key) {
             size_type _idx = _get_index_read(_key);
             return (_is_set[_idx] == active_enum::ACTIVE) ? _table[_idx].second : emplace(_key, value_type{});
         }
 
+        /**
+         * @return whether _key is in table
+         */
         constexpr bool contains(key_type const &_key) {
             return _is_set[_get_index_read(_key)] == active_enum::ACTIVE;
         }
 
+        /**
+         * @param _key key which is removed from table
+         */
         constexpr void erase(key_type const &_key) {
             remove(_key);
         }
 
+        /**
+         * @param _key key which is removed from table
+         */
         constexpr void remove(key_type const &_key) {
             size_type _idx = _get_index_read(_key);
             if (_is_set[_idx] == active_enum::ACTIVE) {
@@ -81,10 +100,19 @@ namespace lmj {
             }
         }
 
+        /**
+         * @param _key
+         * @param _value
+         * @return reference to _value in vector
+         */
         constexpr value_type &insert(key_type const &_key, value_type const &_value) {
             return emplace(_key, _value);
         }
 
+        /**
+         * @param _pack arguments for constructing element
+         * @return  reference to newly constructed value
+         */
         template<class... _types>
         constexpr value_type &emplace(_types &&... _pack) {
             static_assert(sizeof...(_pack));
@@ -99,10 +127,16 @@ namespace lmj {
             return _table[_idx].second;
         }
 
+        /**
+         * @return size of vector
+         */
         [[nodiscard]] constexpr size_type size() const {
             return _elem_count;
         }
 
+        /**
+         * @return capacity of vector
+         */
         [[nodiscard]] constexpr size_type capacity() const {
             return _capacity;
         }
