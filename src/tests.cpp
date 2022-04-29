@@ -9,21 +9,10 @@
 #include <iomanip>
 #include <map>
 
-void apply_to_all_recursively(auto &x, auto &&f) {
-    if constexpr (lmj::iterable<decltype(x)>) {
-        for (auto &i: x) apply_to_all_recursively(i, f);
-    } else {
-        f(x);
-    }
-}
-
 int main() {
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
-    std::cerr.tie(nullptr);
     {
         static_assert(lmj::abs(lmj::log(2) + lmj::log(3) - lmj::log(2 * 3)) < 1e-5);
+        lmj::print("Test 1 passed!");
     }
     {
         constexpr auto result_map = []() {
@@ -39,6 +28,7 @@ int main() {
             return res;
         }();
         static_assert(sum == 50 * 49 / 2);
+        lmj::print("Test 2 passed!");
     }
     {
         lmj::hash_table<int, int> map;
@@ -51,6 +41,7 @@ int main() {
         for (int i = 0; i < 1024; ++i)
             sum += map[i];
         assert(sum == 512 * 512); // sum of odd numbers up to and including 1023 = ((1023 - 1) / 2) ^ 2
+        lmj::print("Test 3 passed!");
     }
     {
         static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint8_t>::min()>()) == 1);
@@ -58,14 +49,13 @@ int main() {
         static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint16_t>::max()>()) == 2);
         static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint32_t>::max()>()) == 4);
         static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint64_t>::max()>()) == 8);
-    }
-    {
         constexpr auto f = lmj::lagrange::get_function(0, 0, 0.5, 0.25, 1, 1); // y = x^2
         static_assert(f(0) == 0);
         static_assert(f(1) == 1);
         static_assert(f(2) == 4);
         static_assert(f(3) == 9);
         static_assert(lmj::lagrange::get_function(0, 0, 2, 3, 5, 20)(3) == 7);
+        lmj::print("Test 4 passed!");
     }
     {
         static_assert(lmj::hypot(3, 4) == 5);
@@ -77,6 +67,7 @@ int main() {
         assert(lmj::abs(lmj::exp(1000.5l) - std::exp(1000.5l)) < 1e-5);
         for (int i = 0; i < 10000; ++i)
             assert(lmj::abs(std::exp((long double) i) - lmj::exp(i)) / std::exp((long double) i) < 1e-15);
+        lmj::print("Test 5 passed!");
     }
     {
         constexpr int NUM_TESTS = 1e3;
@@ -123,6 +114,7 @@ int main() {
         }
         for (auto &[key, val]: cmp)
             assert(stud[key] == val);
+        lmj::print("Test 6 passed!");
     }
     {
         lmj::static_hash_table<int, int, 2> t;
@@ -155,8 +147,11 @@ int main() {
             return t;
         }();
         static_assert(table_1 == table_2);
+        lmj::print("Test 7 passed!");
     }
     {
         static_assert(lmj::abs(lmj::integrate([](auto x) { return x * x; }, 0, 3, 1e5) - 9) < 1e-3);
+        lmj::print("Test 8 passed!");
     }
+    lmj::print("All tests passed!");
 }
