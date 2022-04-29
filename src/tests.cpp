@@ -137,15 +137,8 @@ int main() {
         lmj::static_hash_table<int, int, 2> t;
         t[2] = 0;
         t[4] = 0;
-        lmj::debug(t._table[0], (int) t._is_set[0]);
-        lmj::debug(t._table[1], (int) t._is_set[1]);
         t.erase(2);
-        lmj::debug(t._table[0], (int) t._is_set[0]);
-        lmj::debug(t._table[1], (int) t._is_set[1]);
         t[1] = 1;
-        lmj::debug(t._table[0], (int) t._is_set[0]);
-        lmj::debug(t._table[1], (int) t._is_set[1]);
-        lmj::debug(t.at(1));
         assert(t.at(1) == 1);
     }
     {
