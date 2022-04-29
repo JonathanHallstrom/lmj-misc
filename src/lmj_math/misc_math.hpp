@@ -106,6 +106,25 @@ namespace lmj {
         return lmj::sqrt(sum_squares(nums...));
     }
 
+    /**
+     * @param f integrand
+     * @param low lower limit of integration
+     * @param high upper limit of integration
+     * @param steps number of steps between limits
+     * @return integral of f from low to high
+     */
+    constexpr auto integrate(auto &&f, long double low, long double high, int steps = 1e6) {
+        long double sum = 0;
+        long double last_y = f(low);
+        const long double step_size = (high - low) / (long double) steps;
+        for (long double x = low + step_size; x <= high; x += step_size) {
+            const long double y = f(x);
+            sum += y + last_y;
+            last_y = y;
+        }
+        return sum * step_size / 2.0l;
+    }
+
     constexpr auto sigma(std::uint64_t n) {
         std::uint64_t res = 1;
         for (std::uint64_t p = 2; p * p <= n; p += 1 + (p & 1)) {
