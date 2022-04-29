@@ -65,6 +65,7 @@ namespace lmj {
             other._table = nullptr;
             other._elem_count = 0;
             other._capacity = 0;
+            other._tomb_count = 0;
             return *this;
         }
 
@@ -201,7 +202,8 @@ namespace lmj {
         void _resize(size_type const _new_capacity) {
             hash_table _other(_new_capacity);
             for (size_type i = 0; i < _capacity; ++i) {
-                _other.emplace(_table[i]);
+                if (_is_set[i] == active_enum::ACTIVE)
+                    _other.emplace(_table[i]);
             }
             *this = move(_other);
             assert(_new_capacity == _capacity);
