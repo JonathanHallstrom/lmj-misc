@@ -36,7 +36,6 @@ int main() {
             map[i] = i;
         for (int i = 0; i < 1024; i += 2)
             map.erase(i);
-        assert(map.size() == 512);
         int sum = 0;
         for (int i = 0; i < 1024; ++i)
             sum += map[i];
@@ -71,49 +70,49 @@ int main() {
     }
     {
         constexpr int NUM_TESTS = 1e3;
-        std::unordered_map<int, int> cmp;
-        lmj::hash_table<int, int> stud;
+        std::unordered_map<int, int> map;
+        lmj::hash_table<int, int> check;
         for (int i = 0; i < NUM_TESTS; ++i) {
             int key, value;
             key = i / 2;
             value = i;
             if (i > NUM_TESTS / 32)
                 value = -i;
-            cmp[key] = value;
-            stud[key] = value;
+            map[key] = value;
+            check[key] = value;
         }
         for (int i = 0; i < NUM_TESTS; ++i) {
             int key = lmj::rand<int>();
-            cmp.erase(key);
-            stud.erase(key);
-        }
-        for (int i = 0; i < NUM_TESTS; ++i) {
-            int key = lmj::rand<int>();
-            int val = lmj::rand<int>();
-            cmp[key] = val;
-            stud[key] = val;
-        }
-        for (int i = 0; i < NUM_TESTS; ++i) {
-            int key = lmj::rand<int>();
-            cmp.erase(key);
-            stud.erase(key);
+            map.erase(key);
+            check.erase(key);
         }
         for (int i = 0; i < NUM_TESTS; ++i) {
             int key = lmj::rand<int>();
             int val = lmj::rand<int>();
-            cmp[key] = val;
-            stud[key] = val;
+            map[key] = val;
+            check[key] = val;
+        }
+        for (int i = 0; i < NUM_TESTS; ++i) {
+            int key = lmj::rand<int>();
+            map.erase(key);
+            check.erase(key);
+        }
+        for (int i = 0; i < NUM_TESTS; ++i) {
+            int key = lmj::rand<int>();
+            int val = lmj::rand<int>();
+            map[key] = val;
+            check[key] = val;
         }
         for (int i = 0; i < NUM_TESTS; ++i) {
             int key = lmj::rand<int>();
             for (int j = 0; j < 100; ++j) {
                 int val = lmj::rand<int>();
-                cmp[key] = val;
-                stud[key] = val;
+                map[key] = val;
+                check[key] = val;
             }
         }
-        for (auto &[key, val]: cmp)
-            assert(stud[key] == val);
+        for (auto &[key, val]: map)
+            assert(check[key] == val);
         lmj::print("Test 6 passed!");
     }
     {
@@ -138,7 +137,7 @@ int main() {
             for (int i = 0; i < 100; ++i) {
                 state = state * 2901110977 + 1703049143;
                 temp_vec.push_back(state);
-                t[state] = 0xBADF00D;
+                t[(int) state] = 0xBADF00D;
             }
             for (int i = 0; i < 100; ++i) {
                 t.erase(temp_vec[i]);
@@ -152,6 +151,39 @@ int main() {
     {
         static_assert(lmj::abs(lmj::integrate([](auto x) { return x * x; }, 0, 3, 1e5) - 9) < 1e-3);
         lmj::print("Test 8 passed!");
+    }
+    {
+        lmj::hash_table<int, int> map;
+        std::unordered_map<int, int> check;
+        std::vector<int> vals;
+        assert(map.size() == check.size());
+        constexpr int n = 1 << 20;
+
+        for (int i = 0; i < n; ++i) vals.push_back(lmj::rand<int>());
+
+        for (int i = 0; i < n; i += 2) {
+            map[vals[i]] = 0xBADF00D;
+            check[vals[i]] = 0xBADF00D;
+        }
+        map.erase(0);
+        assert(map.size() == check.size());
+
+        for (auto &[key, val]: check)
+            assert(map.at(key) == val);
+
+        for (int i = 0; i < n; i += 2) {
+            map.erase(vals[i]);
+            check.erase(vals[i]);
+        }
+
+        for (int i = 0; i < n; ++i)
+            if (map._is_set[i] == 1) {
+                lmj::debug(i, map._table[i]);
+            }
+
+        assert(map.size() == check.size());
+
+        lmj::print("Test 9 passed!");
     }
     lmj::print("All tests passed!");
 }
