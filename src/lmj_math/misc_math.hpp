@@ -117,8 +117,8 @@ namespace lmj {
         long double sum = 0;
         long double last_y = f(low);
         const long double step_size = (high - low) / (long double) steps;
-        for (long double x = low + step_size; x <= high; x += step_size) {
-            const long double y = f(x);
+        for (int step = 1; step < steps; ++step) {
+            const long double y = f(low + step_size * step);
             sum += y + last_y;
             last_y = y;
         }

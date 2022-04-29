@@ -170,8 +170,9 @@ int main() {
             }
             return t;
         }();
-        lmj::debug(std::vector(std::begin(table_1._table), std::end(table_1._table)));
-        lmj::debug(std::vector(std::begin(table_2._table), std::end(table_2._table)));
         static_assert(table_1 == table_2);
+    }
+    {
+        static_assert(lmj::abs(lmj::integrate([](auto x) { return x * x; }, 0, 3, 1e5) - 9) < 1e-3);
     }
 }
