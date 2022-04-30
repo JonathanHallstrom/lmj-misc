@@ -267,7 +267,7 @@ namespace lmj {
         }
 
         void _grow() {
-            _resize((_capacity + !_capacity) * 2);
+            _resize((_capacity + 16 * !_capacity) * 2);
         }
 
         void _alloc_size(size_type const _new_capacity) {
