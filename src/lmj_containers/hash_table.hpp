@@ -26,9 +26,7 @@ namespace lmj {
             TOMBSTONE = 2,
         };
 
-        hash_table() {
-            _alloc_size(128);
-        }
+        hash_table() = default;
 
         hash_table(hash_table const &other) {
             *this = other;
@@ -38,9 +36,7 @@ namespace lmj {
             *this = std::move(other);
         }
 
-        explicit hash_table(hash_type _hasher) : _hasher(_hasher) {
-            _alloc_size(128);
-        }
+        explicit hash_table(hash_type _hasher) : _hasher(_hasher) {}
 
         explicit hash_table(size_type _size) {
             _alloc_size(_size);
@@ -113,6 +109,7 @@ namespace lmj {
          * @return value at _key or fails
          */
         value_type const &at(key_type const &_key) const {
+            assert(_capacity && "empty hash_table");
             size_type _idx = _get_index_read(_key);
             assert(_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first == _key && "key not found");
             return _table[_idx].second;
@@ -123,6 +120,8 @@ namespace lmj {
          * @return reference to value associated with _key
          */
         value_type &get(key_type const &_key) {
+            if (_should_grow())
+                _grow();
             size_type _idx = _get_index_read(_key);
             return (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first == _key) ?
                    _table[_idx].second : emplace(_key, value_type{});
@@ -264,7 +263,7 @@ namespace lmj {
         }
 
         [[nodiscard]] bool _should_grow() const {
-            return (_elem_count + _tomb_count) * 3 / 2 > _capacity;
+            return (_elem_count + _tomb_count) * 3 / 2 >= _capacity;
         }
 
         void _grow() {
