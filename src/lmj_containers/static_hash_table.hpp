@@ -157,6 +157,21 @@ namespace lmj {
             return _capacity;
         }
 
+
+        /**
+         * @brief remove all elements
+         */
+        void clear() {
+            for (size_type i = 0; i < _capacity; ++i) {
+                if (_is_set[i] == active_enum::ACTIVE) {
+                    _table[i].~pair_type();
+                    _is_set[i] = active_enum::INACTIVE;
+                } else if (_is_set[i] == active_enum::TOMBSTONE) {
+                    _is_set[i] = active_enum::INACTIVE;
+                }
+            }
+        }
+
     private:
         constexpr void _copy(static_hash_table const &other) {
             for (size_type i = 0; i < other.capacity(); ++i) {
