@@ -159,7 +159,6 @@ int main() {
             map[vals[i]] = 0xBADF00D;
             check[vals[i]] = 0xBADF00D;
         }
-        map.erase(0);
         assert(map.size() == check.size());
 
         for (auto &[key, val]: check)
@@ -169,11 +168,6 @@ int main() {
             map.erase(vals[i]);
             check.erase(vals[i]);
         }
-
-        for (int i = 0; i < n; ++i)
-            if (map._is_set[i] == 1) {
-                lmj::debug(i, map._table[i]);
-            }
 
         assert(map.size() == check.size());
 
