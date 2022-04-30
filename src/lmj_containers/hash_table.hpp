@@ -21,8 +21,9 @@ namespace lmj {
         hash_type _hasher{};
 
         enum active_enum : bool_type {
+            INACTIVE = 0,
             ACTIVE = 1,
-            TOMBSTONE = 2
+            TOMBSTONE = 2,
         };
 
         hash_table() {
@@ -196,6 +197,20 @@ namespace lmj {
          */
         [[nodiscard]] size_type capacity() const {
             return _capacity;
+        }
+
+        /**
+         * @brief remove all elements
+         */
+        void clear() {
+            for (size_type i = 0; i < _capacity; ++i) {
+                if (_is_set[i] == active_enum::ACTIVE) {
+                    _table[i].~pair_type();
+                    _is_set[i] = active_enum::INACTIVE;
+                } else if (_is_set[i] == active_enum::TOMBSTONE) {
+                    _is_set[i] = active_enum::INACTIVE;
+                }
+            }
         }
 
     private:
