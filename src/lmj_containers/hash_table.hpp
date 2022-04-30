@@ -267,9 +267,8 @@ namespace lmj {
         }
 
         void _grow() {
-            // assuming cache line length of 64 bytes
-            constexpr auto pairs_per_cache_line = lmj::max(1, 64 / (sizeof(pair_type)));
-            _resize((_capacity + pairs_per_cache_line * !_capacity) * 2);
+            constexpr auto default_size = std::max(16ull, 64 / (sizeof(pair_type)));
+            _resize((_capacity + (default_size / 2) * !_capacity) * 2);
         }
 
         void _alloc_size(size_type const _new_capacity) {
