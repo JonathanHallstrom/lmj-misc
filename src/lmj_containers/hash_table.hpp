@@ -211,6 +211,8 @@ namespace lmj {
                     _is_set[i] = active_enum::INACTIVE;
                 }
             }
+            _elem_count = 0;
+            _tomb_count = 0;
         }
 
     private:
