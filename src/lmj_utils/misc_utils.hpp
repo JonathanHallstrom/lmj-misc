@@ -22,7 +22,7 @@ namespace lmj {
     }
 
     template<class T, class G>
-    constexpr auto min(T const &a, G const &b) noexcept -> decltype(a + b) const {
+    constexpr auto min(T const &a, G const &b) noexcept -> decltype(a + b) {
         return a < b ? a : b;
     }
 
