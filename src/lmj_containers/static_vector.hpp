@@ -13,9 +13,6 @@ namespace lmj {
         T _data[_capacity]{};
         size_type _size{};
 
-        /**
-         * @brief default construct vector
-         */
         constexpr static_vector() = default;
 
         /**
