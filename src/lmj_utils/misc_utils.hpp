@@ -22,12 +22,12 @@ namespace lmj {
     }
 
     template<class T, class G>
-    constexpr auto min(T const &a, G const &b) noexcept -> decltype(a + b) const & {
+    constexpr auto min(T const &a, G const &b) noexcept -> decltype(a + b) const {
         return a < b ? a : b;
     }
 
     template<class T, class G>
-    constexpr auto max(T const &a, G const &b) noexcept -> decltype(a + b) const & {
+    constexpr auto max(T const &a, G const &b) noexcept -> decltype(a + b) const {
         return a > b ? a : b;
     }
 
