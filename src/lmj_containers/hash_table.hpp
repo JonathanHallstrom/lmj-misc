@@ -10,7 +10,7 @@ namespace lmj {
     template<class key_type, class value_type, class hash_type = std::hash<key_type>>
     class hash_table {
     public:
-        using pair_type = std::pair<const key_type, value_type>;
+        using pair_type = std::pair<key_type const, value_type>;
         using size_type = std::size_t;
         using bool_type = std::uint8_t;
         pair_type *_table{};
@@ -267,8 +267,11 @@ namespace lmj {
         }
 
         void _grow() {
-            constexpr auto default_size = std::max(16ull, 64 / (sizeof(pair_type)));
-            _resize((_capacity + (default_size / 2) * !_capacity) * 2);
+            constexpr auto default_size = 16;
+            if (_capacity > 0)
+                _resize(_capacity * 2);
+            else
+                _resize(default_size);
         }
 
         void _alloc_size(size_type const _new_capacity) {

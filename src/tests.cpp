@@ -170,11 +170,6 @@ int main() {
             check.erase(vals[i]);
         }
 
-        for (int i = 0; i < n; ++i)
-            if (map._is_set[i] == 1) {
-                lmj::debug(i, map._table[i]);
-            }
-
         assert(map.size() == check.size());
 
         lmj::print("Test 9 passed!");
