@@ -19,6 +19,7 @@ namespace lmj {
         hash_type _hasher{};
 
         enum active_enum : bool_type {
+            INACTIVE = 0,
             ACTIVE = 1,
             TOMBSTONE = 2
         };
