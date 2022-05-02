@@ -243,10 +243,9 @@ namespace lmj {
         [[nodiscard]] size_type _get_index_read(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
             std::size_t _iterations = 0;
-            while (_is_set[_idx] == active_enum::TOMBSTONE ||
-                   (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first != _key)) {
-                if (_iterations++ == _capacity)
-                    return _idx;
+            while ((_is_set[_idx] == active_enum::TOMBSTONE ||
+                    (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first != _key))
+                   && _iterations++ < _capacity) {
                 _idx = _new_idx(_idx);
             }
             return _idx;
