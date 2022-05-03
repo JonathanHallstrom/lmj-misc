@@ -21,7 +21,7 @@ namespace lmj {
         y = z;
         z = t ^ x ^ y;
 
-        return (T) z;
+        return static_cast<T>(z);
     }
 
     constexpr auto min(number auto const &a, number auto const &b) noexcept -> decltype(a + b) {
