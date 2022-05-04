@@ -221,7 +221,7 @@ namespace lmj {
                 if (_is_set[i] == active_enum::ACTIVE)
                     _other.emplace(_table[i]);
             }
-            *this = move(_other);
+            *this = std::move(_other);
             assert(_new_capacity == _capacity);
         }
 
