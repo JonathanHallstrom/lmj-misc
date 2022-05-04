@@ -59,7 +59,8 @@ int main() {
         static_assert(lmj::abs(lmj::exp(10) - 22026.465794806716516) < 1e-5);
         assert(lmj::abs(lmj::exp(1000.5l) - std::exp(1000.5l)) < 1e-5);
         for (int i = 0; i < 10000; ++i)
-            assert(lmj::abs(std::exp((long double) i) - lmj::exp(i)) / std::exp((long double) i) < 1e-15);
+            assert(lmj::abs(std::exp(static_cast<long double>(i)) - lmj::exp(i)) /
+                   std::exp(static_cast<long double>(i)) < 1e-15);
         lmj::print("Test 5 passed!");
     }
     {
