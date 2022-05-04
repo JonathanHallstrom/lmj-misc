@@ -10,6 +10,7 @@ namespace lmj {
     template<class key_type, class value_type, std::size_t _capacity, class hash_type = lmj::hash<key_type>>
     class static_hash_table {
     public:
+        static_assert(_capacity && "a capacity of zero is not allowed");
         using pair_type = std::pair<key_type, value_type>;
         using size_type = decltype(needed_uint<_capacity>());
         using bool_type = std::uint8_t;
