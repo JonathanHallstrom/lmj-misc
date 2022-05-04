@@ -111,12 +111,15 @@ int main() {
         lmj::print("Test 6 passed!");
     }
     {
-        lmj::static_hash_table<int, int, 2> t;
-        t[2] = 0;
-        t[4] = 0;
-        t.erase(2);
-        t[1] = 1;
-        assert(t.at(1) == 1);
+        constexpr auto m = []() { ;
+            lmj::static_hash_table<int, int, 2> t;
+            t[2] = 0;
+            t[4] = 0;
+            t.erase(2);
+            t[1] = 1;
+            return t;
+        }();
+        static_assert(m.at(1) == 1);
     }
     {
         constexpr auto table_1 = []() {
