@@ -268,7 +268,7 @@ namespace lmj {
         void _grow() {
             constexpr auto default_size = 16;
             if (_capacity > 0)
-                _resize(_capacity * 2);
+                _resize(_capacity * (2 + 6 * (_capacity < 4096)));
             else
                 _resize(default_size);
         }
