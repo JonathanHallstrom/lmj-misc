@@ -68,10 +68,10 @@ namespace lmj {
             constexpr auto e = _exp_small(1);
             const auto whole_part = unsigned(x);
             const auto fractional_part = x - whole_part;
-            return (long double) (ipow(e, whole_part) * _exp_small(fractional_part));
+            return static_cast<long double>(ipow(e, whole_part) * _exp_small(fractional_part));
         }
         // only if x >= 0 and x <= 1
-        return (long double) _exp_small(x);
+        return static_cast<long double>(_exp_small(x));
     }
 
     /**
@@ -116,7 +116,7 @@ namespace lmj {
     constexpr auto integrate(auto &&f, long double low, long double high, int steps = 1e6) {
         long double sum = 0;
         long double last_y = f(low);
-        const long double step_size = (high - low) / (long double) steps;
+        const long double step_size = (high - low) / static_cast<long double>(steps);
         for (int step = 1; step < steps; ++step) {
             const long double y = f(low + step_size * step);
             sum += y + last_y;
