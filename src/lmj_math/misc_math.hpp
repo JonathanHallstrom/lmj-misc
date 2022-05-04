@@ -45,9 +45,8 @@ namespace lmj {
     using biggest_float = long double;
 #endif
 
-    constexpr biggest_float _exp_small(biggest_float x) {
+    constexpr biggest_float _exp_small(biggest_float x, int n = 32) {
         biggest_float sum = 1.0l;
-        int n = 32;
         while (--n)
             sum = 1.0l + x * sum / (biggest_float) n;
         return sum;
