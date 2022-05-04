@@ -66,8 +66,8 @@ namespace lmj {
             return 1.0l / lmj::exp(-x);
         if (x > 1) {
             constexpr auto e = _exp_small(1);
-            const auto whole_part = unsigned(x);
-            const auto fractional_part = x - whole_part;
+            const auto whole_part = static_cast<unsigned>(x);
+            const auto fractional_part = x - static_cast<long double>(whole_part);
             return static_cast<long double>(ipow(e, whole_part) * _exp_small(fractional_part));
         }
         // only if x >= 0 and x <= 1
