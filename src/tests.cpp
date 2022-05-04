@@ -150,7 +150,9 @@ int main() {
         lmj::hash_table<int, int> map;
         std::unordered_map<int, int> check;
         std::vector<int> vals;
+
         assert(map.size() == check.size());
+
         constexpr int n = 1 << 20;
 
         for (int i = 0; i < n; ++i) vals.push_back(lmj::rand<int>());
@@ -159,7 +161,7 @@ int main() {
             map[vals[i]] = 0xBADF00D;
             check[vals[i]] = 0xBADF00D;
         }
-        map.erase(0);
+
         assert(map.size() == check.size());
 
         for (auto &[key, val]: check)
@@ -173,6 +175,10 @@ int main() {
         assert(map.size() == check.size());
 
         lmj::print("Test 9 passed!");
+    }
+
+    {
+
     }
     lmj::print("All tests passed!");
 }

@@ -4,9 +4,11 @@
 #include <functional>
 
 namespace lmj {
-    template<class T> concept integral = std::is_integral_v<T>;
-    template<class T> concept unsigned_integral = integral<T> && !std::is_signed_v<T>;
-    template<class T> concept signed_integral = integral<T> && std::is_signed_v<T>;
+    template<class T> concept integral = std::is_integral_v<std::remove_reference_t<std::remove_const_t<T>>>;
+    template<class T> concept unsigned_integral = integral<T> &&
+                                                  !std::is_signed_v<std::remove_reference_t<std::remove_const_t<T>>>;
+    template<class T> concept signed_integral = integral<T> &&
+                                                std::is_signed_v<std::remove_reference_t<std::remove_const_t<T>>>;
 
     template<class T>
     concept number = std::is_integral_v<std::remove_reference_t<std::remove_const_t<T>>> ||
