@@ -131,6 +131,8 @@ namespace lmj {
          * @return whether _key is in table
          */
         bool contains(key_type const &_key) {
+            if (!_capacity)
+                return false;
             size_type _idx = _get_index_read(_key);
             return _is_set[_idx] == active_enum::ACTIVE && _table[_idx].first == _key;
         }
