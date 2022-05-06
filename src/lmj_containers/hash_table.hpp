@@ -36,9 +36,9 @@ namespace lmj {
             *this = std::move(other);
         }
 
-        explicit hash_table(hash_type _hasher) : _hasher(_hasher) {}
+        explicit hash_table(hash_type _hasher) : _hasher{_hasher} {}
 
-        explicit hash_table(size_type _size) {
+        explicit hash_table(size_type _size, hash_type _hasher = {}) : _hasher{_hasher} {
             _alloc_size(_size);
         }
 
@@ -48,7 +48,7 @@ namespace lmj {
         }
 
         hash_table &operator=(hash_table &&other) noexcept {
-            if (this == &other || this->_table == other._table || this->_is_set == other._is_set)
+            if (this == &other || _table == other._table || _is_set == other._is_set)
                 return *this;
             delete[] _table;
             delete[] _is_set;
@@ -67,13 +67,12 @@ namespace lmj {
         }
 
         hash_table &operator=(hash_table const &other) {
-            if (this == &other || this->_table == other._table || this->_is_set == other._is_set)
+            if (this == &other || _table == other._table || _is_set == other._is_set)
                 return *this;
             _alloc_size(other._capacity);
             for (size_type i = 0; i < other._capacity; ++i) {
-                if (other._is_set[i] == active_enum::ACTIVE) {
+                if (other._is_set[i] == active_enum::ACTIVE)
                     new(&_table[i]) pair_type(other._table[i]);
-                }
                 _is_set[i] = other._is_set[i];
             }
             _tomb_count = 0;
