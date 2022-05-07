@@ -147,8 +147,10 @@ namespace lmj {
          * @param _key key which is removed from table
          */
         void remove(key_type const &_key) {
+            if (!_capacity)
+                return;
             size_type _idx = _get_index_read(_key);
-            if (_is_set[_idx] == active_enum::ACTIVE) {
+            if (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].second == _key) {
                 --_elem_count;
                 ++_tomb_count;
                 _table[_idx].~pair_type();
@@ -215,17 +217,22 @@ namespace lmj {
             _tomb_count = 0;
         }
 
-    private:
-        void _resize(size_type const _new_capacity) {
+        /**
+         * @brief resizes the table and causes a rehash of all elements
+         * fails if _new_capacity is less than current capacity
+         * @param _new_capacity
+         */
+        void resize(size_type const _new_capacity) {
+            assert(_new_capacity >= _capacity);
             hash_table _other(_new_capacity);
             for (size_type i = 0; i < _capacity; ++i) {
                 if (_is_set[i] == active_enum::ACTIVE)
                     _other.emplace(_table[i]);
             }
             *this = move(_other);
-            assert(_new_capacity == _capacity);
         }
 
+    private:
         [[nodiscard]] size_type _clamp_size(size_type _idx) const {
             if ((_capacity & (_capacity - 1)) == 0)
                 return _idx & (_capacity - 1);
@@ -269,9 +276,9 @@ namespace lmj {
         void _grow() {
             constexpr auto default_size = 16;
             if (_capacity > 0)
-                _resize(_capacity * (2 + 6 * (_capacity < 4096)));
+                resize(_capacity * (2 + 6 * (_capacity < 4096)));
             else
-                _resize(default_size);
+                resize(default_size);
         }
 
         void _alloc_size(size_type const _new_capacity) {
