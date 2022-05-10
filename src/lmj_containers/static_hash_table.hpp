@@ -131,7 +131,8 @@ namespace lmj {
          * @param _pack arguments for constructing element
          * @return  reference to newly constructed value
          */
-        constexpr value_type &emplace(auto &&... _pack) {
+        template<class... T>
+        constexpr value_type &emplace(T &&... _pack) {
             static_assert(sizeof...(_pack));
             assert(_elem_count < _capacity);
             auto _p = pair_type{_pack...};

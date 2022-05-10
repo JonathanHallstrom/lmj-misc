@@ -171,7 +171,8 @@ namespace lmj {
          * @param _pack arguments for constructing element
          * @return  reference to newly constructed value
          */
-        value_type &emplace(auto &&... _pack) {
+        template<class... T>
+        value_type &emplace(T &&... _pack) {
             if (_should_grow())
                 _grow();
             static_assert(sizeof...(_pack));
