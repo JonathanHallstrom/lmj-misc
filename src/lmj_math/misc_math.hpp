@@ -13,9 +13,7 @@ namespace lmj {
      * @throws std::out_of_range if exp = base = 0
      * @return base ^ exp
      */
-    constexpr auto ipow(auto base, integral auto exp) -> decltype(base) {
-        if constexpr (signed_integral<decltype(exp)>)
-            assert(exp >= 0);
+    constexpr auto ipow(auto base, std::uint64_t exp) -> decltype(base) {
         if (exp == 1)
             return base;
         if (exp == 0 && base != 0.0)
