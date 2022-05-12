@@ -111,7 +111,7 @@ namespace lmj {
          */
         constexpr void remove(key_type const &_key) {
             size_type _idx = _get_index_read(_key);
-            if (_is_set[_idx] == active_enum::ACTIVE) {
+            if (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].second == _key) {
                 --_elem_count;
                 _table[_idx] = pair_type{};
                 _is_set[_idx] = active_enum::TOMBSTONE;
@@ -218,7 +218,7 @@ namespace lmj {
             size_type _idx = _get_hash(_key);
             std::size_t _iterations = 0;
             while (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first != _key) {
-                assert(_iterations++ < _capacity && "element not found");
+                assert(_iterations++ < _capacity && "empty index not found");
                 _idx = _new_idx(_idx);
             }
             return _idx;
