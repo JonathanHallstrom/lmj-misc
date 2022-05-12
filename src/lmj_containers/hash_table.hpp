@@ -7,6 +7,15 @@
 #include <cstdint>
 
 namespace lmj {
+    enum active_enum {
+        INACTIVE = 0,
+        ACTIVE = 1,
+        TOMBSTONE = 2,
+    };
+
+    template<class key_t, class value_t, class hash_t>
+    class hash_table_iterator;
+
     template<class key_type, class value_type, class hash_type = std::hash<key_type>>
     class hash_table {
     public:
@@ -20,11 +29,6 @@ namespace lmj {
         size_type _capacity{};
         hash_type _hasher{};
 
-        enum active_enum : bool_type {
-            INACTIVE = 0,
-            ACTIVE = 1,
-            TOMBSTONE = 2,
-        };
 
         hash_table() = default;
 
@@ -150,12 +154,28 @@ namespace lmj {
             if (!_capacity)
                 return;
             size_type _idx = _get_index_read(_key);
-            if (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].second == _key) {
+            if (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first == _key) {
                 --_elem_count;
                 ++_tomb_count;
                 _table[_idx].~pair_type();
                 _is_set[_idx] = active_enum::TOMBSTONE;
             }
+        }
+
+        [[nodiscard]] auto begin() {
+            return hash_table_iterator<key_type, value_type, hash_type>(this, 0);
+        }
+
+        [[nodiscard]] auto end() {
+            return hash_table_iterator<key_type, value_type, hash_type>(this, _capacity);
+        }
+
+        [[nodiscard]] auto cbegin() const {
+            return hash_table_iterator<key_type, value_type, hash_type>(this, 0);
+        }
+
+        [[nodiscard]] auto cend() const {
+            return hash_table_iterator<key_type, value_type, hash_type>(this, _capacity);
         }
 
         /**
@@ -230,13 +250,14 @@ namespace lmj {
             *this = move(_other);
         }
 
-    private:
         [[nodiscard]] size_type _clamp_size(size_type _idx) const {
             if ((_capacity & (_capacity - 1)) == 0)
                 return _idx & (_capacity - 1);
             else
                 return _idx % _capacity;
         }
+
+    private:
 
         [[nodiscard]] size_type _get_hash(key_type const &_key) const {
             return _clamp_size(_hasher(_key));
@@ -287,6 +308,43 @@ namespace lmj {
             _elem_count = 0;
             _tomb_count = 0;
             _capacity = _new_capacity;
+        }
+    };
+
+    template<class key_t, class value_t, class hash_t>
+    class hash_table_iterator {
+    public:
+        using pair_type = std::pair<key_t const, value_t>;
+        using size_type = std::size_t;
+
+        using iterator_category = std::bidirectional_iterator_tag;
+        using difference_type = long long;
+        using value_type = pair_type;
+        using pointer = pair_type *;
+        using reference = pair_type &;
+
+        hash_table<key_t, value_t, hash_t> const *const _table_ptr;
+        size_type _index;
+
+        hash_table_iterator(hash_table<key_t, value_t, hash_t> const *_ptr, size_type _idx) : _table_ptr{_ptr},
+                                                                                              _index{_idx} {}
+
+        hash_table_iterator &operator++() {
+            while (_table_ptr->_is_set[_table_ptr->_clamp_size(++_index)] != active_enum::ACTIVE);
+            return *this;
+        }
+
+        hash_table_iterator &operator--() {
+            while (_table_ptr->_is_set[_table_ptr->_clamp_size(--_index)] != active_enum::ACTIVE);
+            return *this;
+        }
+
+        reference operator*() const {
+            return _table_ptr->_table[_index];
+        }
+
+        bool operator!=(hash_table_iterator const &other) const {
+            return _index != other._index || _table_ptr != other._table_ptr;
         }
     };
 }

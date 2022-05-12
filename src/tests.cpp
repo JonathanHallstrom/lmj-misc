@@ -180,5 +180,14 @@ int main() {
 
         lmj::print("Test 9 passed!");
     }
+    {
+        lmj::hash_table<int, int> m;
+        for (int i = 0; i < 128; ++i)
+            m[i] = i;
+        for (auto &[key, value]: m)
+            assert(key == value);
+
+        lmj::print("Test 10 passed!");
+    }
     lmj::print("All tests passed!");
 }
