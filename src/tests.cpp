@@ -186,7 +186,9 @@ int main() {
             m[i] = i;
         for (auto &[key, value]: m)
             assert(key == value);
-
+        lmj::hash_table<int, int> const m2 = m;
+        for (auto &[key, value]: m2)
+            assert(key == value);
         lmj::print("Test 10 passed!");
     }
     lmj::print("All tests passed!");

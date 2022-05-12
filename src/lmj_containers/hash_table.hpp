@@ -16,12 +16,18 @@ namespace lmj {
     template<class key_t, class value_t, class hash_t>
     class hash_table_iterator;
 
+    template<class key_t, class value_t, class hash_t>
+    class hash_table_const_iterator;
+
+
     template<class key_type, class value_type, class hash_type = std::hash<key_type>>
     class hash_table {
     public:
         using pair_type = std::pair<key_type const, value_type>;
         using size_type = std::size_t;
         using bool_type = std::uint8_t;
+        using iterator = hash_table_iterator<key_type, value_type, hash_type>;
+        using const_iterator = hash_table_const_iterator<key_type, value_type, hash_type>;
         pair_type *_table{};
         bool_type *_is_set{};
         size_type _elem_count{};
@@ -163,19 +169,27 @@ namespace lmj {
         }
 
         [[nodiscard]] auto begin() {
-            return hash_table_iterator<key_type, value_type, hash_type>(this, 0);
+            return iterator(this, 0);
         }
 
         [[nodiscard]] auto end() {
-            return hash_table_iterator<key_type, value_type, hash_type>(this, _capacity);
+            return iterator(this, _capacity);
+        }
+
+        [[nodiscard]] auto begin() const {
+            return const_iterator(this, 0);
+        }
+
+        [[nodiscard]] auto end() const {
+            return const_iterator(this, _capacity);
         }
 
         [[nodiscard]] auto cbegin() const {
-            return hash_table_iterator<key_type, value_type, hash_type>(this, 0);
+            return const_iterator(this, 0);
         }
 
         [[nodiscard]] auto cend() const {
-            return hash_table_iterator<key_type, value_type, hash_type>(this, _capacity);
+            return const_iterator(this, _capacity);
         }
 
         /**
@@ -344,6 +358,43 @@ namespace lmj {
         }
 
         bool operator!=(hash_table_iterator const &other) const {
+            return _index != other._index || _table_ptr != other._table_ptr;
+        }
+    };
+
+    template<class key_t, class value_t, class hash_t>
+    class hash_table_const_iterator {
+    public:
+        using pair_type = std::pair<key_t const, value_t>;
+        using size_type = std::size_t;
+
+        using iterator_category = std::bidirectional_iterator_tag;
+        using difference_type = long long;
+        using value_type = pair_type const;
+        using pointer = pair_type const *;
+        using reference = pair_type const &;
+
+        hash_table<key_t, value_t, hash_t> const *const _table_ptr;
+        size_type _index;
+
+        hash_table_const_iterator(hash_table<key_t, value_t, hash_t> const *_ptr, size_type _idx) : _table_ptr{_ptr},
+                                                                                                    _index{_idx} {}
+
+        hash_table_const_iterator &operator++() {
+            while (_table_ptr->_is_set[_table_ptr->_clamp_size(++_index)] != active_enum::ACTIVE);
+            return *this;
+        }
+
+        hash_table_const_iterator &operator--() {
+            while (_table_ptr->_is_set[_table_ptr->_clamp_size(--_index)] != active_enum::ACTIVE);
+            return *this;
+        }
+
+        reference operator*() const {
+            return _table_ptr->_table[_index];
+        }
+
+        bool operator!=(hash_table_const_iterator const &other) const {
             return _index != other._index || _table_ptr != other._table_ptr;
         }
     };
