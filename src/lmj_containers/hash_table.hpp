@@ -208,10 +208,8 @@ namespace lmj {
             for (size_type i = 0; i < _capacity; ++i) {
                 if (_is_set[i] == active_enum::ACTIVE) {
                     _table[i].~pair_type();
-                    _is_set[i] = active_enum::INACTIVE;
-                } else if (_is_set[i] == active_enum::TOMBSTONE) {
-                    _is_set[i] = active_enum::INACTIVE;
                 }
+                _is_set[i] = active_enum::INACTIVE;
             }
             _elem_count = 0;
             _tomb_count = 0;
