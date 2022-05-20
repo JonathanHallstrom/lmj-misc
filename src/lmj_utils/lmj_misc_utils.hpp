@@ -70,13 +70,4 @@ namespace lmj {
     static_assert(sign(0) == 0);
     static_assert(sign(1) == 1);
     static_assert(sign(-1) == -1);
-
-    static_assert(
-            []() {
-                constexpr_rand_generator<int> gen{69};
-//                static_vector<int, 100> v;
-//                for (auto &i: v) i = gen();
-                return 0;
-            }() == 0
-    );
 }
