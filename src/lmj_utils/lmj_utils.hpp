@@ -1,7 +1,7 @@
 #pragma once
 
-#include "hashers.hpp"
-#include "simple_structs.hpp"
-#include "misc_utils.hpp"
-#include "concepts.hpp"
-#include "timer.hpp"
+#include <lmj_hashers.hpp>
+#include <lmj_simple_structs.hpp>
+#include <lmj_misc_utils.hpp>
+#include <lmj_concepts.hpp>
+#include <lmj_timer.hpp>

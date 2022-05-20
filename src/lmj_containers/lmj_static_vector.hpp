@@ -1,8 +1,9 @@
 #pragma once
 
 #include <numeric>
+#include <cassert>
 #include <limits>
-#include "container_helpers.hpp"
+#include "lmj_container_helpers.hpp"
 
 namespace lmj {
     template<class T, std::size_t _capacity>
@@ -143,6 +144,20 @@ namespace lmj {
          * @return pointer to one past the end of elements
          */
         [[nodiscard]] constexpr auto end() const {
+            return _data + _size;
+        }
+
+        /**
+         * @return pointer to beginning of elements
+         */
+        [[nodiscard]] constexpr auto begin() {
+            return _data;
+        }
+
+        /**
+         * @return pointer to one past the end of elements
+         */
+        [[nodiscard]] constexpr auto end() {
             return _data + _size;
         }
 

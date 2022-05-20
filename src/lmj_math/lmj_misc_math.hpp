@@ -1,7 +1,8 @@
 #pragma once
 
-#include "newton_raphson.hpp"
-#include "../lmj_containers/container_helpers.hpp"
+#include <lmj_newton_raphson.hpp>
+#include <lmj_container_helpers.hpp>
+
 #include <cmath>
 #include <ranges>
 #include <cassert>
@@ -150,4 +151,13 @@ namespace lmj {
         return res;
     }
 
+    // tests
+
+    static_assert(lmj::abs(lmj::integrate([](auto x) { return x * x; }, 0, 3, 1e5) - 9) < 1e-3);
+    static_assert(lmj::hypot(3, 4) == 5);
+    static_assert(lmj::sqrt(25) == 5);
+    static_assert(lmj::sqrt(9) == 3);
+    static_assert(lmj::sum_squares(-9, 3) == 90);
+    static_assert(lmj::ipow(0.5, 4) == 0.0625);
+    static_assert(lmj::abs(lmj::exp(10) - 22026.465794806716516) < 1e-5);
 }

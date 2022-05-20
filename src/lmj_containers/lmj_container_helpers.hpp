@@ -17,4 +17,13 @@ namespace lmj {
             return std::uint64_t{};
         }
     }
+
+    // tests
+
+
+    static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint8_t>::min()>()) == 1);
+    static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint8_t>::max()>()) == 1);
+    static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint16_t>::max()>()) == 2);
+    static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint32_t>::max()>()) == 4);
+    static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint64_t>::max()>()) == 8);
 }

@@ -3,8 +3,10 @@
 #include <utility>
 #include <functional>
 #include <cstdint>
-#include "../lmj_utils/lmj_utils.hpp"
-#include "container_helpers.hpp"
+
+#include <lmj_utils.hpp>
+#include <lmj_container_helpers.hpp>
+#include <lmj_misc_utils.hpp>
 
 namespace lmj {
     template<class key_type, class value_type, std::size_t _capacity, class hash_type = lmj::hash<key_type>>
@@ -222,4 +224,16 @@ namespace lmj {
             return _idx;
         }
     };
+
+    // tests
+
+    static_assert([]() {
+        lmj::static_hash_table<int, int, 128> map;
+        for (int i = 0; i < 50; ++i)
+            map[i] = i;
+        auto res = 0;
+        for (int i = 0; i < 50; ++i)
+            res += map.at(i);
+        return res;
+    }() == 50 * 49 / 2);
 }

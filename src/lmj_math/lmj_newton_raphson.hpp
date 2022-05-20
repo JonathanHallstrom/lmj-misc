@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../lmj_utils/concepts.hpp"
+#include <lmj_concepts.hpp>
+
 #include <limits>
 
 namespace lmj {
