@@ -81,7 +81,7 @@ namespace lmj {
                 return *this;
             _alloc_size(other._capacity);
             for (size_type i = 0; i < other._capacity; ++i) {
-                if (other._is_set[i] == active_enum::ACTIVE)
+                if (other._is_set[i] == ACTIVE)
                     new(&_table[i]) pair_type(other._table[i]);
                 _is_set[i] = other._is_set[i];
             }
@@ -96,9 +96,9 @@ namespace lmj {
             if (other.size() != this->size())
                 return false;
             for (std::size_t i = 0; i < _capacity; ++i) {
-                if (_is_set[i] == active_enum::ACTIVE) {
+                if (_is_set[i] == ACTIVE) {
                     size_type _idx = other._get_index_read(_table[i].second);
-                    if (other._is_set[_idx] != active_enum::ACTIVE)
+                    if (other._is_set[_idx] != ACTIVE)
                         return false;
                     if (other._table[_idx].second != _table[i].second)
                         return false;
@@ -120,7 +120,7 @@ namespace lmj {
         value_type const &at(key_type const &_key) const {
             assert(_capacity && "empty hash_table");
             size_type _idx = _get_index_read(_key);
-            assert(_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first == _key && "key not found");
+            assert(_is_set[_idx] == ACTIVE && _table[_idx].first == _key && "key not found");
             return _table[_idx].second;
         }
 
@@ -132,7 +132,7 @@ namespace lmj {
             if (_should_grow())
                 _grow();
             size_type _idx = _get_index_read(_key);
-            return (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first == _key) ?
+            return (_is_set[_idx] == ACTIVE && _table[_idx].first == _key) ?
                    _table[_idx].second : emplace(_key, value_type{});
         }
 
@@ -143,7 +143,7 @@ namespace lmj {
             if (!_capacity)
                 return false;
             size_type _idx = _get_index_read(_key);
-            return _is_set[_idx] == active_enum::ACTIVE && _table[_idx].first == _key;
+            return _is_set[_idx] == ACTIVE && _table[_idx].first == _key;
         }
 
         /**
@@ -160,11 +160,11 @@ namespace lmj {
             if (!_capacity)
                 return;
             size_type _idx = _get_index_read(_key);
-            if (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first == _key) {
+            if (_is_set[_idx] == ACTIVE && _table[_idx].first == _key) {
                 --_elem_count;
                 ++_tomb_count;
                 _table[_idx].~pair_type();
-                _is_set[_idx] = active_enum::TOMBSTONE;
+                _is_set[_idx] = TOMBSTONE;
             }
         }
 
@@ -211,12 +211,12 @@ namespace lmj {
             static_assert(sizeof...(_pack));
             auto _p = pair_type{_pack...};
             size_type _idx = _get_index_read(_p.first);
-            if (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first == _p.first)
+            if (_is_set[_idx] == ACTIVE && _table[_idx].first == _p.first)
                 return _table[_idx].second;
             _idx = _get_writable_index(_p.first);
             ++_elem_count;
-            _tomb_count -= _is_set[_idx] == active_enum::TOMBSTONE;
-            _is_set[_idx] = active_enum::ACTIVE;
+            _tomb_count -= _is_set[_idx] == TOMBSTONE;
+            _is_set[_idx] = ACTIVE;
             new(_table + _idx) pair_type(_p);
             return _table[_idx].second;
         }
@@ -240,10 +240,10 @@ namespace lmj {
          */
         void clear() {
             for (size_type i = 0; i < _capacity; ++i) {
-                if (_is_set[i] == active_enum::ACTIVE) {
+                if (_is_set[i] == ACTIVE) {
                     _table[i].~pair_type();
                 }
-                _is_set[i] = active_enum::INACTIVE;
+                _is_set[i] = INACTIVE;
             }
             _elem_count = 0;
             _tomb_count = 0;
@@ -258,7 +258,7 @@ namespace lmj {
             assert(_new_capacity >= _capacity);
             hash_table _other(_new_capacity);
             for (size_type i = 0; i < _capacity; ++i) {
-                if (_is_set[i] == active_enum::ACTIVE)
+                if (_is_set[i] == ACTIVE)
                     _other.emplace(_table[i]);
             }
             *this = move(_other);
@@ -272,7 +272,6 @@ namespace lmj {
         }
 
     private:
-
         [[nodiscard]] size_type _get_hash(key_type const &_key) const {
             return _clamp_size(_hasher(_key));
         }
@@ -284,8 +283,8 @@ namespace lmj {
         [[nodiscard]] size_type _get_index_read(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
             std::size_t _iterations = 0;
-            while ((_is_set[_idx] == active_enum::TOMBSTONE ||
-                    (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first != _key))
+            while ((_is_set[_idx] == TOMBSTONE ||
+                    (_is_set[_idx] == ACTIVE && _table[_idx].first != _key))
                    && _iterations++ < _capacity) {
                 _idx = _new_idx(_idx);
             }
@@ -295,7 +294,7 @@ namespace lmj {
         [[nodiscard]] size_type _get_writable_index(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
             std::size_t _iterations = 0;
-            while (_is_set[_idx] == active_enum::ACTIVE && _table[_idx].first != _key) {
+            while (_is_set[_idx] == ACTIVE && _table[_idx].first != _key) {
                 assert(_iterations++ < _capacity && "element not found");
                 _idx = _new_idx(_idx);
             }
@@ -344,12 +343,12 @@ namespace lmj {
                                                                                               _index{_idx} {}
 
         hash_table_iterator &operator++() {
-            while (_table_ptr->_is_set[_table_ptr->_clamp_size(++_index)] != active_enum::ACTIVE);
+            while (_table_ptr->_is_set[_table_ptr->_clamp_size(++_index)] != ACTIVE);
             return *this;
         }
 
         hash_table_iterator &operator--() {
-            while (_table_ptr->_is_set[_table_ptr->_clamp_size(--_index)] != active_enum::ACTIVE);
+            while (_table_ptr->_is_set[_table_ptr->_clamp_size(--_index)] != ACTIVE);
             return *this;
         }
 
@@ -381,12 +380,12 @@ namespace lmj {
                                                                                                     _index{_idx} {}
 
         hash_table_const_iterator &operator++() {
-            while (_table_ptr->_is_set[_table_ptr->_clamp_size(++_index)] != active_enum::ACTIVE);
+            while (_table_ptr->_is_set[_table_ptr->_clamp_size(++_index)] != ACTIVE);
             return *this;
         }
 
         hash_table_const_iterator &operator--() {
-            while (_table_ptr->_is_set[_table_ptr->_clamp_size(--_index)] != active_enum::ACTIVE);
+            while (_table_ptr->_is_set[_table_ptr->_clamp_size(--_index)] != ACTIVE);
             return *this;
         }
 
