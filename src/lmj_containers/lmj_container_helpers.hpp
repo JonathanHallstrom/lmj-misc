@@ -1,6 +1,12 @@
 #pragma once
 
 namespace lmj {
+    enum active_enum {
+        INACTIVE = 0,
+        ACTIVE = 1,
+        TOMBSTONE = 2,
+    };
+
     /**
      * @tparam n an unsigned int value
      * @return 0 with the smallest type which can represent n
@@ -19,7 +25,6 @@ namespace lmj {
     }
 
     // tests
-
 
     static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint8_t>::min()>()) == 1);
     static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint8_t>::max()>()) == 1);

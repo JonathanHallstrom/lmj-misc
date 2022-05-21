@@ -7,18 +7,11 @@
 #include <cstdint>
 
 namespace lmj {
-    enum active_enum {
-        INACTIVE = 0,
-        ACTIVE = 1,
-        TOMBSTONE = 2,
-    };
-
     template<class key_t, class value_t, class hash_t>
     class hash_table_iterator;
 
     template<class key_t, class value_t, class hash_t>
     class hash_table_const_iterator;
-
 
     template<class key_type, class value_type, class hash_type = std::hash<key_type>>
     class hash_table {
@@ -229,7 +222,7 @@ namespace lmj {
         }
 
         /**
-         * @return capacity of table
+         * @return _table_capacity of table
          */
         [[nodiscard]] size_type capacity() const {
             return _capacity;
@@ -251,7 +244,7 @@ namespace lmj {
 
         /**
          * @brief resizes the table and causes a rehash of all elements
-         * fails if _new_capacity is less than current capacity
+         * fails if _new_capacity is less than current _table_capacity
          * @param _new_capacity
          */
         void resize(size_type const _new_capacity) {
@@ -261,7 +254,7 @@ namespace lmj {
                 if (_is_set[i] == ACTIVE)
                     _other.emplace(_table[i]);
             }
-            *this = move(_other);
+            *this = std::move(_other);
         }
 
         [[nodiscard]] size_type _clamp_size(size_type _idx) const {
@@ -278,6 +271,7 @@ namespace lmj {
             for (size_type i = 0; i < _capacity; ++i)
                 if (_is_set[i] == ACTIVE)
                     return i;
+            return 0; // should be unreachable;
         }
 
         [[nodiscard]] size_type _get_end_index() const {
@@ -348,11 +342,11 @@ namespace lmj {
         using pointer = pair_type *;
         using reference = pair_type &;
 
-        hash_table<key_t, value_t, hash_t> const *const _table_ptr;
+        hash_table<key_t, value_t, hash_t> *const _table_ptr;
         size_type _index;
 
-        hash_table_iterator(hash_table<key_t, value_t, hash_t> const *_ptr, size_type _idx) : _table_ptr{_ptr},
-                                                                                              _index{_idx} {}
+        hash_table_iterator(hash_table<key_t, value_t, hash_t> *_ptr, size_type _idx) : _table_ptr{_ptr},
+                                                                                        _index{_idx} {}
 
         hash_table_iterator &operator++() {
             while (_index != _table_ptr->_capacity && _table_ptr->_is_set[++_index] != ACTIVE);

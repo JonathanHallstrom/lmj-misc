@@ -35,7 +35,7 @@ namespace lmj {
         }
 
         /**
-         * @return capacity of vector
+         * @return _table_capacity of vector
          */
         [[nodiscard]] constexpr std::size_t capacity() const {
             return _capacity;

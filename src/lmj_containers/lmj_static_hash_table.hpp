@@ -8,23 +8,25 @@
 #include "lmj_container_helpers.hpp"
 
 namespace lmj {
+    template<class key_t, class value_t, std::size_t _table_capacity, class hash_t>
+    class static_hash_table_iterator;
+
+    template<class key_t, class value_t, std::size_t _table_capacity, class hash_t>
+    class static_hash_table_const_iterator;
+
     template<class key_type, class value_type, std::size_t _capacity, class hash_type = lmj::hash<key_type>>
     class static_hash_table {
     public:
-        static_assert(_capacity && "a capacity of zero is not allowed");
+        static_assert(_capacity && "a _table_capacity of zero is not allowed");
         using pair_type = std::pair<key_type, value_type>;
         using size_type = decltype(needed_uint<_capacity>());
         using bool_type = std::uint8_t;
+        using iterator = static_hash_table_iterator<key_type, value_type, _capacity, hash_type>;
+        using const_iterator = static_hash_table_const_iterator<key_type, value_type, _capacity, hash_type>;
         pair_type _table[_capacity]{};
         bool_type _is_set[_capacity]{};
         size_type _elem_count{};
         hash_type _hasher{};
-
-        enum active_enum : bool_type {
-            INACTIVE = 0,
-            ACTIVE = 1,
-            TOMBSTONE = 2
-        };
 
         constexpr static_hash_table() = default;
 
@@ -119,6 +121,30 @@ namespace lmj {
             }
         }
 
+        [[nodiscard]] constexpr auto begin() {
+            return iterator(this, _get_start_index());
+        }
+
+        [[nodiscard]] constexpr auto end() {
+            return iterator(this, _get_end_index());
+        }
+
+        [[nodiscard]] constexpr auto begin() const {
+            return const_iterator(this, _get_start_index());
+        }
+
+        [[nodiscard]] constexpr auto end() const {
+            return const_iterator(this, _get_end_index());
+        }
+
+        [[nodiscard]] constexpr auto cbegin() const {
+            return const_iterator(this, _get_start_index());
+        }
+
+        [[nodiscard]] constexpr auto cend() const {
+            return const_iterator(this, _get_end_index());
+        }
+
         /**
          * @param _key
          * @param _value
@@ -154,12 +180,11 @@ namespace lmj {
         }
 
         /**
-         * @return capacity of table
+         * @return _table_capacity of table
          */
         [[nodiscard]] constexpr size_type capacity() const {
             return _capacity;
         }
-
 
         /**
          * @brief remove all elements
@@ -175,6 +200,19 @@ namespace lmj {
         }
 
     private:
+        [[nodiscard]] constexpr size_type _get_start_index() const {
+            if (!_capacity)
+                return 0;
+            for (size_type i = 0; i < _capacity; ++i)
+                if (_is_set[i] == ACTIVE)
+                    return i;
+            return 0; // should be unreachable;
+        }
+
+        [[nodiscard]] constexpr size_type _get_end_index() const {
+            return _capacity;
+        }
+
         constexpr void _copy(static_hash_table const &other) {
             for (size_type i = 0; i < other.capacity(); ++i) {
                 if (other._is_set[i] == ACTIVE) {
@@ -221,6 +259,81 @@ namespace lmj {
                 _idx = _new_idx(_idx);
             }
             return _idx;
+        }
+    };
+
+    template<class key_t, class value_t, std::size_t _table_capacity, class hash_t>
+    class static_hash_table_iterator {
+    public:
+        using pair_type = std::pair<key_t, value_t>;
+        using size_type = std::size_t;
+
+        using iterator_category = std::bidirectional_iterator_tag;
+        using difference_type = long long;
+        using value_type = pair_type;
+        using pointer = pair_type *;
+        using reference = pair_type &;
+
+        static_hash_table<key_t, value_t, _table_capacity, hash_t> *const _table_ptr;
+        size_type _index;
+
+        constexpr static_hash_table_iterator(static_hash_table<key_t, value_t, _table_capacity, hash_t> *_ptr,
+                                             size_type _idx) : _table_ptr{_ptr}, _index{_idx} {}
+
+        constexpr static_hash_table_iterator &operator++() {
+            while (_index != _table_ptr->capacity() && _table_ptr->_is_set[++_index] != ACTIVE);
+            return *this;
+        }
+
+        constexpr static_hash_table_iterator &operator--() {
+            while (_index != std::numeric_limits<size_type>::max() && _table_ptr->_is_set[++_index] != ACTIVE);
+            return *this;
+        }
+
+        constexpr reference operator*() const {
+            return _table_ptr->_table[_index];
+        }
+
+        constexpr bool operator!=(static_hash_table_iterator const &other) const {
+            return _index != other._index || _table_ptr != other._table_ptr;
+        }
+    };
+
+    template<class key_t, class value_t, std::size_t _table_capacity, class hash_t>
+    class static_hash_table_const_iterator {
+    public:
+        using pair_type = std::pair<key_t, value_t>;
+        using size_type = std::size_t;
+
+        using iterator_category = std::bidirectional_iterator_tag;
+        using difference_type = long long;
+        using value_type = pair_type const;
+        using pointer = pair_type const *;
+        using reference = pair_type const &;
+
+        static_hash_table<key_t, value_t, _table_capacity, hash_t> const *const _table_ptr;
+        size_type _index;
+
+        constexpr static_hash_table_const_iterator(
+                static_hash_table<key_t, value_t, _table_capacity, hash_t> const *_ptr,
+                size_type _idx) : _table_ptr{_ptr}, _index{_idx} {}
+
+        constexpr static_hash_table_const_iterator &operator++() {
+            while (_index != _table_ptr->capacity() && _table_ptr->_is_set[++_index] != ACTIVE);
+            return *this;
+        }
+
+        constexpr static_hash_table_const_iterator &operator--() {
+            while (_index != std::numeric_limits<size_type>::max() && _table_ptr->_is_set[++_index] != ACTIVE);
+            return *this;
+        }
+
+        constexpr reference operator*() const {
+            return _table_ptr->_table[_index];
+        }
+
+        constexpr bool operator!=(static_hash_table_const_iterator const &other) const {
+            return _index != other._index || _table_ptr != other._table_ptr;
         }
     };
 

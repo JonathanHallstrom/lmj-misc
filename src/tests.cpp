@@ -140,12 +140,24 @@ int main() {
         lmj::hash_table<int, int> m;
         for (int i = 0; i < 128; ++i)
             m[i] = i;
-        for (auto &[key, value]: m)
+        for (auto &[key, value]: m) {
             assert(key == value);
+        }
         lmj::hash_table<int, int> const m2 = m;
         for (auto &[key, value]: m2)
             assert(key == value);
         lmj::print("Test 7 passed!");
+    }
+    {
+        lmj::static_hash_table<int, int, 256> m;
+        for (int i = 0; i < 128; ++i)
+            m[i] = i;
+        for (auto &[key, value]: m)
+            assert(key == value);
+        lmj::static_hash_table<int, int, 256> const m2 = m;
+        for (auto &[key, value]: m2)
+            assert(key == value);
+        lmj::print("Test 8 passed!");
     }
     lmj::print("All tests passed!");
 }
