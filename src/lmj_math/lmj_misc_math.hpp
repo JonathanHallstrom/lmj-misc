@@ -81,7 +81,7 @@ namespace lmj {
         if (x < 0)
             throw std::out_of_range("can't take square root of negative number");
         long double root = x;
-        long double dx = x;
+        long double dx;
         do {
             dx = (root * root - x) / (2 * root);
             root -= dx;
