@@ -169,27 +169,27 @@ namespace lmj {
         }
 
         [[nodiscard]] auto begin() {
-            return iterator(this, 0);
+            return iterator(this, _get_start_index());
         }
 
         [[nodiscard]] auto end() {
-            return iterator(this, _capacity);
+            return iterator(this, _get_end_index());
         }
 
         [[nodiscard]] auto begin() const {
-            return const_iterator(this, 0);
+            return const_iterator(this, _get_start_index());
         }
 
         [[nodiscard]] auto end() const {
-            return const_iterator(this, _capacity);
+            return const_iterator(this, _get_end_index());
         }
 
         [[nodiscard]] auto cbegin() const {
-            return const_iterator(this, 0);
+            return const_iterator(this, _get_start_index());
         }
 
         [[nodiscard]] auto cend() const {
-            return const_iterator(this, _capacity);
+            return const_iterator(this, _get_end_index());
         }
 
         /**
@@ -272,6 +272,18 @@ namespace lmj {
         }
 
     private:
+        [[nodiscard]] size_type _get_start_index() const {
+            if (!_capacity)
+                return 0;
+            for (size_type i = 0; i < _capacity; ++i)
+                if (_is_set[i] == ACTIVE)
+                    return i;
+        }
+
+        [[nodiscard]] size_type _get_end_index() const {
+            return _capacity;
+        }
+
         [[nodiscard]] size_type _get_hash(key_type const &_key) const {
             return _clamp_size(_hasher(_key));
         }
@@ -343,12 +355,12 @@ namespace lmj {
                                                                                               _index{_idx} {}
 
         hash_table_iterator &operator++() {
-            while (_table_ptr->_is_set[_table_ptr->_clamp_size(++_index)] != ACTIVE);
+            while (_index != _table_ptr->_capacity && _table_ptr->_is_set[++_index] != ACTIVE);
             return *this;
         }
 
         hash_table_iterator &operator--() {
-            while (_table_ptr->_is_set[_table_ptr->_clamp_size(--_index)] != ACTIVE);
+            while (_index != std::numeric_limits<size_type>::max() && _table_ptr->_is_set[++_index] != ACTIVE);
             return *this;
         }
 
@@ -380,12 +392,12 @@ namespace lmj {
                                                                                                     _index{_idx} {}
 
         hash_table_const_iterator &operator++() {
-            while (_table_ptr->_is_set[_table_ptr->_clamp_size(++_index)] != ACTIVE);
+            while (_index != _table_ptr->_capacity && _table_ptr->_is_set[++_index] != ACTIVE);
             return *this;
         }
 
         hash_table_const_iterator &operator--() {
-            while (_table_ptr->_is_set[_table_ptr->_clamp_size(--_index)] != ACTIVE);
+            while (_index != std::numeric_limits<size_type>::max() && _table_ptr->_is_set[++_index] != ACTIVE);
             return *this;
         }
 
