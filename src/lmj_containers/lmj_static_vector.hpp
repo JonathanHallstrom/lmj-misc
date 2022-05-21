@@ -29,8 +29,10 @@ namespace lmj {
 
         template<class Iter>
         constexpr explicit static_vector(Iter begin, Iter end) {
+            static_assert(decltype(++begin, begin!=end, *begin, 1)() == 0);
             while (begin != end) {
-                emplace_back(*begin++);
+                emplace_back(*begin);
+                ++begin;
             }
         }
 
