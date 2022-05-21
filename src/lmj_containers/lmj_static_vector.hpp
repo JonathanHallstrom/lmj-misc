@@ -27,6 +27,13 @@ namespace lmj {
             }
         }
 
+        template<class Iter>
+        constexpr explicit static_vector(Iter begin, Iter end) {
+            while (begin != end) {
+                emplace_back(*begin++);
+            }
+        }
+
         /**
          * @return size of vector
          */

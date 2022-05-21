@@ -4,7 +4,7 @@
 #include <functional>
 #include <cstdint>
 
-#include "../lmj_utils/lmj_utils.hpp"
+#include "../lmj_utils/lmj_hashers.hpp"
 #include "lmj_container_helpers.hpp"
 
 namespace lmj {
@@ -158,7 +158,8 @@ namespace lmj {
          * @param _pack arguments for constructing element
          * @return  reference to newly constructed value
          */
-        constexpr value_type &emplace(auto &&... _pack) {
+        template<class... T>
+        constexpr value_type &emplace(T &&... _pack) {
             static_assert(sizeof...(_pack));
             assert(_elem_count < _capacity);
             auto _p = pair_type{_pack...};
@@ -168,7 +169,8 @@ namespace lmj {
             _idx = _get_writable_index(_p.first);
             ++_elem_count;
             _is_set[_idx] = ACTIVE;
-            _table[_idx] = _p;
+            _table[_idx].first = _p.first;
+            _table[_idx].second = _p.second;
             return _table[_idx].second;
         }
 

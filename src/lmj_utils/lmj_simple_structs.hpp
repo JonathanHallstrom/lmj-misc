@@ -6,6 +6,7 @@ namespace lmj {
 
         constexpr point() = default;
 
-        constexpr point(auto &&_x, auto &&_y) : x(_x), y(_y) {}
+        template<class T, class G>
+        constexpr point(T &&_x, G &&_y) : x(_x), y(_y) {}
     };
 }
