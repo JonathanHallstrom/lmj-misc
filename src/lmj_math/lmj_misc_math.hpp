@@ -1,7 +1,7 @@
 #pragma once
 
-#include <lmj_newton_raphson.hpp>
-#include <lmj_container_helpers.hpp>
+#include "lmj_newton_raphson.hpp"
+#include "../lmj_containers/lmj_container_helpers.hpp"
 
 #include <cmath>
 #include <ranges>

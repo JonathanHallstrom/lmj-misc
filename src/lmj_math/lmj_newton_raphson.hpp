@@ -1,6 +1,6 @@
 #pragma once
 
-#include <lmj_concepts.hpp>
+#include "../lmj_utils/lmj_concepts.hpp"
 
 #include <limits>
 

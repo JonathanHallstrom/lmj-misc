@@ -4,8 +4,8 @@
 #include <utility>
 #include <array>
 
-#include <lmj_utils.hpp>
-#include <lmj_containers.hpp>
+#include "../lmj_utils/lmj_utils.hpp"
+#include "../lmj_containers/lmj_containers.hpp"
 
 namespace lmj::lagrange {
     template<std::size_t length, class...T>

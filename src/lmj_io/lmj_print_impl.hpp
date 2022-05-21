@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 
-#include <lmj_utils.hpp>
+#include "../lmj_utils/lmj_utils.hpp"
 
 namespace lmj {
     using std::operator ""s;

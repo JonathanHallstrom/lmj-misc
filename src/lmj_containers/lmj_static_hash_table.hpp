@@ -4,9 +4,8 @@
 #include <functional>
 #include <cstdint>
 
-#include <lmj_utils.hpp>
-#include <lmj_container_helpers.hpp>
-#include <lmj_misc_utils.hpp>
+#include "../lmj_utils/lmj_utils.hpp"
+#include "lmj_container_helpers.hpp"
 
 namespace lmj {
     template<class key_type, class value_type, std::size_t _capacity, class hash_type = lmj::hash<key_type>>

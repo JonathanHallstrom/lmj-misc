@@ -1,8 +1,8 @@
 #pragma once
 
 #include <bit>
-#include <lmj_concepts.hpp>
-#include <lmj_containers.hpp>
+#include "lmj_concepts.hpp"
+#include "../lmj_containers/lmj_containers.hpp"
 
 namespace lmj {
     template<class T> requires integral<T>

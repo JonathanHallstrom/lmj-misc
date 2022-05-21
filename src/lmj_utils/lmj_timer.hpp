@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-#include <lmj_io.hpp>
+#include "../lmj_io/lmj_io.hpp"
 
 namespace lmj {
     void debug(auto &&x);
