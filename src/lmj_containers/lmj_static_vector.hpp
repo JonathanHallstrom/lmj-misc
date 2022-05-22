@@ -183,7 +183,7 @@ namespace lmj {
 
 
     template<class... T>
-    auto make_static_vector(T&&... args) {
+    constexpr auto make_static_vector(T&&... args) {
         using elem_type = typename decltype(std::array{args...})::value_type;
         return static_vector<elem_type, sizeof...(T)>{args...};
     }
