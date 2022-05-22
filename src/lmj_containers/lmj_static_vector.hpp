@@ -3,6 +3,7 @@
 #include <numeric>
 #include <cassert>
 #include <limits>
+#include <array>
 #include "lmj_container_helpers.hpp"
 
 namespace lmj {
@@ -29,11 +30,16 @@ namespace lmj {
 
         template<class Iter>
         constexpr explicit static_vector(Iter begin, Iter end) {
-            static_assert(decltype(++begin, begin!=end, *begin, 0)() == 0);
+            static_assert(decltype(++begin, begin != end, *begin, 0)() == 0);
             while (begin != end) {
                 emplace_back(*begin);
                 ++begin;
             }
+        }
+
+        constexpr static_vector(std::initializer_list<T> l) {
+            for (auto &&i: l)
+                emplace_back(i);
         }
 
         /**
@@ -44,7 +50,7 @@ namespace lmj {
         }
 
         /**
-         * @return _table_capacity of vector
+         * @return capacity of vector
          */
         [[nodiscard]] constexpr std::size_t capacity() const {
             return _capacity;
@@ -127,7 +133,7 @@ namespace lmj {
         }
 
         /**
-         * @brief remove all elements
+         * @brief removes all elements
          */
         constexpr void clear() {
             for (size_type i = 0; i < _size; ++i)
@@ -136,7 +142,7 @@ namespace lmj {
         }
 
         /**
-         * @return bool indicating whether vector is empty
+         * @return vector is empty
          */
         [[nodiscard]] constexpr bool empty() {
             return !_size;
@@ -174,4 +180,11 @@ namespace lmj {
 
         auto rend() = delete;
     };
+
+
+    template<class... T>
+    auto make_static_vector(T&&... args) {
+        using elem_type = typename decltype(std::array{args...})::value_type;
+        return static_vector<elem_type, sizeof...(T)>{args...};
+    }
 }
