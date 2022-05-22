@@ -23,9 +23,8 @@ namespace lmj {
          */
         constexpr explicit static_vector(size_type _n, T const &_value = T{}) {
             _size = _n;
-            for (T &_elem: _data) {  // initialize all elements of vector
-                _elem = _value;
-            }
+            for (size_type i = 0; i < _size; ++i)
+                _data[i] = _value;
         }
 
         template<class Iter>
@@ -181,9 +180,8 @@ namespace lmj {
         auto rend() = delete;
     };
 
-
     template<class... T>
-    constexpr auto make_static_vector(T&&... args) {
+    constexpr auto make_static_vector(T &&... args) {
         using elem_type = typename decltype(std::array{args...})::value_type;
         return static_vector<elem_type, sizeof...(T)>{args...};
     }
