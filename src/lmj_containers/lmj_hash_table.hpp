@@ -15,6 +15,11 @@ namespace lmj {
 
     template<class key_type, class value_type, class hash_type = std::hash<key_type>>
     class hash_table {
+        enum active_enum { // shadowing outer one so this file works on its own
+            INACTIVE = 0,
+            ACTIVE = 1,
+            TOMBSTONE = 2,
+        };
     public:
         using pair_type = std::pair<key_type const, value_type>;
         using size_type = std::size_t;
@@ -246,7 +251,7 @@ namespace lmj {
         /**
          * @brief resizes the table and causes a rehash of all elements
          * fails if _new_capacity is less than current _table_capacity
-         * @param _new_capacity
+		 * @param _new_capacity new capacity of table
          */
         void resize(size_type const _new_capacity) {
             assert(_new_capacity >= _capacity);
@@ -333,6 +338,11 @@ namespace lmj {
 
     template<class key_t, class value_t, class hash_t>
     class hash_table_iterator {
+        enum active_enum { // shadowing outer one so this file works on its own
+            INACTIVE = 0,
+            ACTIVE = 1,
+            TOMBSTONE = 2,
+        };
     public:
         using pair_type = std::pair<key_t const, value_t>;
         using size_type = std::size_t;
@@ -355,7 +365,7 @@ namespace lmj {
         }
 
         hash_table_iterator &operator--() {
-            while (_index != std::numeric_limits<size_type>::max() && _table_ptr->_is_set[++_index] != ACTIVE);
+            while (_index != 0 && _table_ptr->_is_set[--_index] != ACTIVE);
             return *this;
         }
 
@@ -370,6 +380,11 @@ namespace lmj {
 
     template<class key_t, class value_t, class hash_t>
     class hash_table_const_iterator {
+        enum active_enum { // shadowing outer one so this file works on its own
+            INACTIVE = 0,
+            ACTIVE = 1,
+            TOMBSTONE = 2,
+        };
     public:
         using pair_type = std::pair<key_t const, value_t>;
         using size_type = std::size_t;
@@ -387,12 +402,12 @@ namespace lmj {
                                                                                                     _index{_idx} {}
 
         hash_table_const_iterator &operator++() {
-            while (_index != _table_ptr->_capacity && _table_ptr->_is_set[++_index] != ACTIVE);
+            while (_index < _table_ptr->_capacity && _table_ptr->_is_set[++_index] != ACTIVE);
             return *this;
         }
 
         hash_table_const_iterator &operator--() {
-            while (_index != std::numeric_limits<size_type>::max() && _table_ptr->_is_set[++_index] != ACTIVE);
+            while (_index > 0 && _table_ptr->_is_set[--_index] != ACTIVE);
             return *this;
         }
 

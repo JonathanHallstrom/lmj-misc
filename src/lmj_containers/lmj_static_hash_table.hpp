@@ -283,12 +283,12 @@ namespace lmj {
                                              size_type _idx) : _table_ptr{_ptr}, _index{_idx} {}
 
         constexpr static_hash_table_iterator &operator++() {
-            while (_index != _table_ptr->capacity() && _table_ptr->_is_set[++_index] != ACTIVE);
+            while (_index < _table_ptr->capacity() && _table_ptr->_is_set[++_index] != ACTIVE);
             return *this;
         }
 
         constexpr static_hash_table_iterator &operator--() {
-            while (_index != std::numeric_limits<size_type>::max() && _table_ptr->_is_set[++_index] != ACTIVE);
+            while (_index > 0 && _table_ptr->_is_set[--_index] != ACTIVE);
             return *this;
         }
 
@@ -321,12 +321,12 @@ namespace lmj {
                 size_type _idx) : _table_ptr{_ptr}, _index{_idx} {}
 
         constexpr static_hash_table_const_iterator &operator++() {
-            while (_index != _table_ptr->capacity() && _table_ptr->_is_set[++_index] != ACTIVE);
+            while (_index < _table_ptr->capacity() && _table_ptr->_is_set[++_index] != ACTIVE);
             return *this;
         }
 
         constexpr static_hash_table_const_iterator &operator--() {
-            while (_index != std::numeric_limits<size_type>::max() && _table_ptr->_is_set[++_index] != ACTIVE);
+            while (_index > 0 && _table_ptr->_is_set[--_index] != ACTIVE);
             return *this;
         }
 
