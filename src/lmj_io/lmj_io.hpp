@@ -1,5 +1,5 @@
 #pragma once
 
-#include "debug.hpp"
-#include "print.hpp"
-#include "print_impl.hpp"
+#include "lmj_debug.hpp"
+#include "lmj_print.hpp"
+#include "lmj_print_impl.hpp"

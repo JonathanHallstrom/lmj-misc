@@ -1,7 +1,8 @@
 #pragma once
 
-#include "newton_raphson.hpp"
-#include "../lmj_containers/container_helpers.hpp"
+#include "lmj_newton_raphson.hpp"
+#include "../lmj_containers/lmj_container_helpers.hpp"
+
 #include <cmath>
 #include <ranges>
 #include <cassert>
@@ -13,9 +14,7 @@ namespace lmj {
      * @throws std::out_of_range if exp = base = 0
      * @return base ^ exp
      */
-    constexpr auto ipow(auto base, integral auto exp) -> decltype(base) {
-        if constexpr (signed_integral<decltype(exp)>)
-            assert(exp >= 0);
+    constexpr auto ipow(auto base, std::uint64_t exp) -> decltype(base) {
         if (exp == 1)
             return base;
         if (exp == 0 && base != 0.0)
@@ -82,7 +81,7 @@ namespace lmj {
         if (x < 0)
             throw std::out_of_range("can't take square root of negative number");
         long double root = x;
-        long double dx = x;
+        long double dx;
         do {
             dx = (root * root - x) / (2 * root);
             root -= dx;
@@ -152,4 +151,13 @@ namespace lmj {
         return res;
     }
 
+    // tests
+
+    static_assert(lmj::abs(lmj::integrate([](auto x) { return x * x; }, 0, 3, 1e5) - 9) < 1e-3);
+    static_assert(lmj::hypot(3, 4) == 5);
+    static_assert(lmj::sqrt(25) == 5);
+    static_assert(lmj::sqrt(9) == 3);
+    static_assert(lmj::sum_squares(-9, 3) == 90);
+    static_assert(lmj::ipow(0.5, 4) == 0.0625);
+    static_assert(lmj::abs(lmj::exp(10) - 22026.465794806716516) < 1e-5);
 }

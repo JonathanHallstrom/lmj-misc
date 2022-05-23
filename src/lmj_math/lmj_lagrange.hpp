@@ -3,8 +3,9 @@
 #include <cstdint>
 #include <utility>
 #include <array>
+
 #include "../lmj_utils/lmj_utils.hpp"
-#include "../lmj_containers//lmj_containers.hpp"
+#include "../lmj_containers/lmj_containers.hpp"
 
 namespace lmj::lagrange {
     template<std::size_t length, class...T>
@@ -49,4 +50,12 @@ namespace lmj::lagrange {
     constexpr auto get_function(numbers auto &&... points) {
         return [=](long double x) { return interpolate(x, data_format(points...)); };
     }
+
+
+    constexpr auto f = lmj::lagrange::get_function(0, 0, 0.5, 0.25, 1, 1); // y = x^2
+    static_assert(f(0) == 0);
+    static_assert(f(1) == 1);
+    static_assert(f(2) == 4);
+    static_assert(f(3) == 9);
+    static_assert(lmj::lagrange::get_function(0, 0, 2, 3, 5, 20)(3) == 7);
 }

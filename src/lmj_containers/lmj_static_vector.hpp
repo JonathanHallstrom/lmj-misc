@@ -1,8 +1,10 @@
 #pragma once
 
 #include <numeric>
+#include <cassert>
 #include <limits>
-#include "container_helpers.hpp"
+#include <array>
+#include "lmj_container_helpers.hpp"
 
 namespace lmj {
     template<class T, std::size_t _capacity>
@@ -21,9 +23,22 @@ namespace lmj {
          */
         constexpr explicit static_vector(size_type _n, T const &_value = T{}) {
             _size = _n;
-            for (T &_elem: _data) {  // initialize all elements of vector
-                _elem = _value;
+            for (size_type i = 0; i < _size; ++i)
+                _data[i] = _value;
+        }
+
+        template<class Iter>
+        constexpr explicit static_vector(Iter begin, Iter end) {
+            static_assert(decltype(++begin, begin != end, *begin, 0)() == 0);
+            while (begin != end) {
+                emplace_back(*begin);
+                ++begin;
             }
+        }
+
+        constexpr static_vector(std::initializer_list<T> l) {
+            for (auto &&i: l)
+                emplace_back(i);
         }
 
         /**
@@ -117,7 +132,7 @@ namespace lmj {
         }
 
         /**
-         * @brief remove all elements
+         * @brief removes all elements
          */
         constexpr void clear() {
             for (size_type i = 0; i < _size; ++i)
@@ -126,7 +141,7 @@ namespace lmj {
         }
 
         /**
-         * @return bool indicating whether vector is empty
+         * @return vector is empty
          */
         [[nodiscard]] constexpr bool empty() {
             return !_size;
@@ -146,8 +161,28 @@ namespace lmj {
             return _data + _size;
         }
 
+        /**
+         * @return pointer to beginning of elements
+         */
+        [[nodiscard]] constexpr auto begin() {
+            return _data;
+        }
+
+        /**
+         * @return pointer to one past the end of elements
+         */
+        [[nodiscard]] constexpr auto end() {
+            return _data + _size;
+        }
+
         auto rbegin() = delete;
 
         auto rend() = delete;
     };
+
+    template<class... T>
+    constexpr auto make_static_vector(T &&... args) {
+        using elem_type = typename decltype(std::array{args...})::value_type;
+        return static_vector<elem_type, sizeof...(T)>{args...};
+    }
 }

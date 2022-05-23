@@ -1,12 +1,8 @@
 #pragma once
 
 #include <limits>
-#include "misc_math.hpp"
-#include "newton_raphson.hpp"
-
-#include <limits>
-#include "misc_math.hpp"
-#include "newton_raphson.hpp"
+#include "lmj_misc_math.hpp"
+#include "lmj_newton_raphson.hpp"
 
 namespace lmj {
     constexpr auto ln_cp_impl(long double n) {
@@ -64,4 +60,8 @@ namespace lmj {
     constexpr long double log10(long double x) {
         return log_n(x, 10);
     }
+
+    // tests
+
+    static_assert(lmj::abs(lmj::log(2) + lmj::log(3) - lmj::log(2 * 3)) < 1e-5);
 }
