@@ -209,10 +209,11 @@ namespace lmj {
                 _grow();
             static_assert(sizeof...(_pack));
             auto _p = pair_type{_pack...};
-            size_type _idx = _get_index_read(_p.first);
+            size_type _hash = _get_hash(_p.first);
+            size_type _idx = _get_index_read(_p.first, _hash);
             if (_is_set[_idx] == ACTIVE && _table[_idx].first == _p.first)
                 return _table[_idx].second;
-            _idx = _get_writable_index(_p.first);
+            _idx = _get_writable_index(_p.first, _hash);
             ++_elem_count;
             _tomb_count -= _is_set[_idx] == TOMBSTONE;
             _is_set[_idx] = ACTIVE;
@@ -294,6 +295,14 @@ namespace lmj {
 
         [[nodiscard]] size_type _get_index_read(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
+            return _get_index_read_impl(_key, _idx);
+        }
+
+        [[nodiscard]] size_type _get_index_read(key_type const &_key, size_type _idx) const {
+            return _get_index_read_impl(_key, _idx);
+        }
+
+        [[nodiscard]] size_type _get_index_read_impl(key_type const &_key, size_type _idx) const {
             std::size_t _iterations = 0;
             while ((_is_set[_idx] == TOMBSTONE ||
                     (_is_set[_idx] == ACTIVE && _table[_idx].first != _key))
@@ -305,6 +314,14 @@ namespace lmj {
 
         [[nodiscard]] size_type _get_writable_index(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
+            return _get_writable_index_impl(_key, _idx);
+        }
+
+        [[nodiscard]] size_type _get_writable_index(key_type const &_key, size_type _idx) const {
+            return _get_writable_index_impl(_key, _idx);
+        }
+
+        [[nodiscard]] size_type _get_writable_index_impl(key_type const &_key, size_type _idx) const {
             std::size_t _iterations = 0;
             while (_is_set[_idx] == ACTIVE && _table[_idx].first != _key) {
                 assert(_iterations++ < _capacity && "element not found");

@@ -4,10 +4,21 @@
 #include <functional>
 #include <cstdint>
 
-#include "../lmj_utils/lmj_hashers.hpp"
 #include "lmj_container_helpers.hpp"
 
 namespace lmj {
+    template<class T>
+    struct hash {
+        constexpr auto operator()(T x) const -> std::enable_if_t<std::is_integral_v<T>, T> {
+            // based on xorshift random number generators by George Marsaglia
+            if constexpr (sizeof(T) > 2) // if T is a short or char this is UB
+                x ^= x << 16;
+            x ^= x >> 5;
+            x ^= x << 1;
+            return x;
+        }
+    };
+
     template<class key_t, class value_t, std::size_t _table_capacity, class hash_t>
     class static_hash_table_iterator;
 
@@ -16,6 +27,11 @@ namespace lmj {
 
     template<class key_type, class value_type, std::size_t _capacity, class hash_type = lmj::hash<key_type>>
     class static_hash_table {
+        enum active_enum { // shadowing outer one so this file works on its own
+            INACTIVE = 0,
+            ACTIVE = 1,
+            TOMBSTONE = 2,
+        };
     public:
         static_assert(_capacity && "a _table_capacity of zero is not allowed");
         using pair_type = std::pair<key_type, value_type>;
@@ -163,10 +179,11 @@ namespace lmj {
             static_assert(sizeof...(_pack));
             assert(_elem_count < _capacity);
             auto _p = pair_type{_pack...};
-            size_type _idx = _get_index_read(_p.first);
+            size_type _hash = _get_hash(_p.first);
+            size_type _idx = _get_index_read(_p.first, _hash);
             if (_is_set[_idx] == ACTIVE && _table[_idx].first == _p.first)
                 return _table[_idx].second;
-            _idx = _get_writable_index(_p.first);
+            _idx = _get_writable_index(_p.first, _hash);
             ++_elem_count;
             _is_set[_idx] = ACTIVE;
             _table[_idx].first = _p.first;
@@ -244,6 +261,14 @@ namespace lmj {
 
         [[nodiscard]] constexpr size_type _get_index_read(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
+            return _get_index_read_impl(_key, _idx);
+        }
+
+        [[nodiscard]] constexpr size_type _get_index_read(key_type const &_key, size_type _idx) const {
+            return _get_index_read_impl(_key, _idx);
+        }
+
+        [[nodiscard]] constexpr size_type _get_index_read_impl(key_type const &_key, size_type _idx) const {
             std::size_t _iterations = 0;
             while ((_is_set[_idx] == TOMBSTONE ||
                     (_is_set[_idx] == ACTIVE && _table[_idx].first != _key))
@@ -255,17 +280,31 @@ namespace lmj {
 
         [[nodiscard]] constexpr size_type _get_writable_index(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
+            return _get_writable_index_impl(_key, _idx);
+        }
+
+        [[nodiscard]] constexpr size_type _get_writable_index(key_type const &_key, size_type _idx) const {
+            return _get_writable_index_impl(_key, _idx);
+        }
+
+        [[nodiscard]] constexpr size_type _get_writable_index_impl(key_type const &_key, size_type _idx) const {
             std::size_t _iterations = 0;
             while (_is_set[_idx] == ACTIVE && _table[_idx].first != _key) {
-                assert(_iterations++ < _capacity && "empty index not found");
+                assert(_iterations++ < _capacity && "element not found");
                 _idx = _new_idx(_idx);
             }
             return _idx;
         }
+
     };
 
     template<class key_t, class value_t, std::size_t _table_capacity, class hash_t>
     class static_hash_table_iterator {
+        enum active_enum { // shadowing outer one so this file works on its own
+            INACTIVE = 0,
+            ACTIVE = 1,
+            TOMBSTONE = 2,
+        };
     public:
         using pair_type = std::pair<key_t, value_t>;
         using size_type = std::size_t;
@@ -305,6 +344,11 @@ namespace lmj {
 
     template<class key_t, class value_t, std::size_t _table_capacity, class hash_t>
     class static_hash_table_const_iterator {
+        enum active_enum { // shadowing outer one so this file works on its own
+            INACTIVE = 0,
+            ACTIVE = 1,
+            TOMBSTONE = 2,
+        };
     public:
         using pair_type = std::pair<key_t, value_t>;
         using size_type = std::size_t;
