@@ -36,15 +36,15 @@ namespace lmj {
 
         hash_table() = default;
 
-        hash_table(hash_table const &other) {
+        constexpr hash_table(hash_table const &other) {
             *this = other;
         }
 
-        hash_table(hash_table &&other) noexcept {
+        constexpr hash_table(hash_table &&other) noexcept {
             *this = std::move(other);
         }
 
-        explicit hash_table(hash_type _hasher) : _hasher{_hasher} {}
+        constexpr explicit hash_table(hash_type _hasher) : _hasher{_hasher} {}
 
         explicit hash_table(size_type _size, hash_type _hasher = {}) : _hasher{_hasher} {
             _alloc_size(_size);
@@ -359,13 +359,15 @@ namespace lmj {
         hash_table_iterator(hash_table<key_t, value_t, hash_t> *_ptr, size_type _idx) : _table_ptr{_ptr},
                                                                                         _index{_idx} {}
 
-        hash_table_iterator &operator++() {
-            while (_index != _table_ptr->_capacity && _table_ptr->_is_set[++_index] != ACTIVE);
+        auto &operator++() {
+            ++_index;
+            while (_index < _table_ptr->capacity() && _table_ptr->_is_set[_index] != ACTIVE) ++_index;
             return *this;
         }
 
-        hash_table_iterator &operator--() {
-            while (_index != 0 && _table_ptr->_is_set[--_index] != ACTIVE);
+        auto &operator--() {
+            --_index;
+            while (_index > 0 && _table_ptr->_is_set[_index] != ACTIVE) --_index;
             return *this;
         }
 
@@ -401,13 +403,15 @@ namespace lmj {
         hash_table_const_iterator(hash_table<key_t, value_t, hash_t> const *_ptr, size_type _idx) : _table_ptr{_ptr},
                                                                                                     _index{_idx} {}
 
-        hash_table_const_iterator &operator++() {
-            while (_index < _table_ptr->_capacity && _table_ptr->_is_set[++_index] != ACTIVE);
+        auto &operator++() {
+            ++_index;
+            while (_index < _table_ptr->capacity() && _table_ptr->_is_set[_index] != ACTIVE) ++_index;
             return *this;
         }
 
-        hash_table_const_iterator &operator--() {
-            while (_index > 0 && _table_ptr->_is_set[--_index] != ACTIVE);
+        auto &operator--() {
+            --_index;
+            while (_index > 0 && _table_ptr->_is_set[_index] != ACTIVE) --_index;
             return *this;
         }
 

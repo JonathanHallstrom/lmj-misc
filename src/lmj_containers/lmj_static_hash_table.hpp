@@ -282,13 +282,15 @@ namespace lmj {
         constexpr static_hash_table_iterator(static_hash_table<key_t, value_t, _table_capacity, hash_t> *_ptr,
                                              size_type _idx) : _table_ptr{_ptr}, _index{_idx} {}
 
-        constexpr static_hash_table_iterator &operator++() {
-            while (_index < _table_ptr->capacity() && _table_ptr->_is_set[++_index] != ACTIVE);
+        constexpr auto & operator++() {
+            ++_index;
+            while (_index < _table_ptr->capacity() && _table_ptr->_is_set[_index] != ACTIVE) ++_index;
             return *this;
         }
 
-        constexpr static_hash_table_iterator &operator--() {
-            while (_index > 0 && _table_ptr->_is_set[--_index] != ACTIVE);
+        constexpr auto &operator--() {
+            --_index;
+            while (_index > 0 && _table_ptr->_is_set[_index] != ACTIVE) --_index;
             return *this;
         }
 
@@ -320,13 +322,15 @@ namespace lmj {
                 static_hash_table<key_t, value_t, _table_capacity, hash_t> const *_ptr,
                 size_type _idx) : _table_ptr{_ptr}, _index{_idx} {}
 
-        constexpr static_hash_table_const_iterator &operator++() {
-            while (_index < _table_ptr->capacity() && _table_ptr->_is_set[++_index] != ACTIVE);
+        constexpr auto & operator++() {
+            ++_index;
+            while (_index < _table_ptr->capacity() && _table_ptr->_is_set[_index] != ACTIVE) ++_index;
             return *this;
         }
 
-        constexpr static_hash_table_const_iterator &operator--() {
-            while (_index > 0 && _table_ptr->_is_set[--_index] != ACTIVE);
+        constexpr auto &operator--() {
+            --_index;
+            while (_index > 0 && _table_ptr->_is_set[_index] != ACTIVE) --_index;
             return *this;
         }
 
