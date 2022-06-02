@@ -15,7 +15,7 @@ namespace lmj {
 
     template<class key_type, class value_type, class hash_type = std::hash<key_type>>
     class hash_table {
-        enum active_enum { // shadowing outer one so this file works on its own
+        enum active_enum {
             INACTIVE = 0,
             ACTIVE = 1,
             TOMBSTONE = 2,
@@ -355,7 +355,7 @@ namespace lmj {
 
     template<class key_t, class value_t, class hash_t>
     class hash_table_iterator {
-        enum active_enum { // shadowing outer one so this file works on its own
+        enum active_enum {
             INACTIVE = 0,
             ACTIVE = 1,
             TOMBSTONE = 2,
@@ -399,7 +399,7 @@ namespace lmj {
 
     template<class key_t, class value_t, class hash_t>
     class hash_table_const_iterator {
-        enum active_enum { // shadowing outer one so this file works on its own
+        enum active_enum {
             INACTIVE = 0,
             ACTIVE = 1,
             TOMBSTONE = 2,

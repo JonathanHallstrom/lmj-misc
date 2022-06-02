@@ -1,12 +1,6 @@
 #pragma once
 
 namespace lmj {
-    enum active_enum {
-        INACTIVE = 0,
-        ACTIVE = 1,
-        TOMBSTONE = 2,
-    };
-
     /**
      * @tparam n an unsigned int value
      * @return 0 with the smallest type which can represent n

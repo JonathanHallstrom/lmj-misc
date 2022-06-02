@@ -27,7 +27,7 @@ namespace lmj {
 
     template<class key_type, class value_type, std::size_t _capacity, class hash_type = lmj::hash<key_type>>
     class static_hash_table {
-        enum active_enum { // shadowing outer one so this file works on its own
+        enum active_enum {
             INACTIVE = 0,
             ACTIVE = 1,
             TOMBSTONE = 2,
@@ -300,7 +300,7 @@ namespace lmj {
 
     template<class key_t, class value_t, std::size_t _table_capacity, class hash_t>
     class static_hash_table_iterator {
-        enum active_enum { // shadowing outer one so this file works on its own
+        enum active_enum {
             INACTIVE = 0,
             ACTIVE = 1,
             TOMBSTONE = 2,
@@ -344,7 +344,7 @@ namespace lmj {
 
     template<class key_t, class value_t, std::size_t _table_capacity, class hash_t>
     class static_hash_table_const_iterator {
-        enum active_enum { // shadowing outer one so this file works on its own
+        enum active_enum {
             INACTIVE = 0,
             ACTIVE = 1,
             TOMBSTONE = 2,
@@ -402,9 +402,33 @@ namespace lmj {
     static_assert([] {
         lmj::static_hash_table<short, int, 128> map;
         for (int i = 0; i < 64; ++i) {
-            map[i] = i * i * i * i;
+            map[static_cast<short>(i)] = i * i * i * i;
         }
         const auto map2 = map;
-        return true;
+        return map == map2;
+    }());
+    static_assert([] {
+        auto table_1 = [] {
+            lmj::static_hash_table<int, int, 128> t;
+            for (int i = 0; i < 100; ++i)
+                t[i] = i;
+            return t;
+        }();
+        auto table_2 = [] {
+            lmj::static_hash_table<int, int, 128> t;
+            lmj::static_vector<int, 128> temp_vec;
+            std::size_t state = 8662772801;
+            for (int i = 0; i < 100; ++i) {
+                temp_vec.push_back(static_cast<int>(state));
+                t[static_cast<int>(state)] = 0xBADF00D;
+                state = state * 7967335919 + 1078795391;
+            }
+            for (int i = 0; i < 100; ++i) {
+                t.erase(temp_vec[i]);
+                t[i] = i;
+            }
+            return t;
+        }();
+        return table_1 == table_2;
     }());
 }

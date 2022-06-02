@@ -82,31 +82,6 @@ int main() {
         lmj::print("Test 4 passed!");
     }
     {
-        constexpr auto table_1 = [] {
-            lmj::static_hash_table<int, int, 128> t;
-            for (int i = 0; i < 100; ++i)
-                t[i] = i;
-            return t;
-        }();
-        constexpr auto table_2 = [] {
-            lmj::static_hash_table<int, int, 128> t;
-            lmj::static_vector<int, 128> temp_vec;
-            lmj::constexpr_rand_generator<int> gen;
-            for (int i = 0; i < 100; ++i) {
-                auto temp = gen();
-                temp_vec.push_back(temp);
-                t[temp] = 0xBADF00D;
-            }
-            for (int i = 0; i < 100; ++i) {
-                t.erase(temp_vec[i]);
-                t[i] = i;
-            }
-            return t;
-        }();
-        static_assert(table_1 == table_2);
-        lmj::print("Test 5 passed!");
-    }
-    {
         lmj::hash_table<int, int> map;
         std::unordered_map<int, int> check;
         std::vector<int> vals;
@@ -134,7 +109,7 @@ int main() {
 
         assert(map.size() == check.size());
 
-        lmj::print("Test 6 passed!");
+        lmj::print("Test 5 passed!");
     }
     {
         lmj::hash_table<int, int> m;
@@ -146,18 +121,7 @@ int main() {
         lmj::hash_table<int, int> const m2 = m;
         for (auto &[key, value]: m2)
             assert(key == value);
-        lmj::print("Test 7 passed!");
-    }
-    {
-        lmj::static_hash_table<int, int, 256> m;
-        for (int i = 0; i < 128; ++i)
-            m[i] = i;
-        for (auto &[key, value]: m)
-            assert(key == value);
-        lmj::static_hash_table<int, int, 256> const m2 = m;
-        for (auto &[key, value]: m2)
-            assert(key == value);
-        lmj::print("Test 8 passed!");
+        lmj::print("Test 6 passed!");
     }
     lmj::print("All tests passed!");
 }
