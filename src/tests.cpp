@@ -70,7 +70,7 @@ int main() {
         lmj::print("Test 3 passed!");
     }
     {
-        constexpr auto m = []() {
+        constexpr auto m = [] {
             lmj::static_hash_table<int, int, 2> t;
             t[2] = 0;
             t[4] = 0;
@@ -82,13 +82,13 @@ int main() {
         lmj::print("Test 4 passed!");
     }
     {
-        constexpr auto table_1 = []() {
+        constexpr auto table_1 = [] {
             lmj::static_hash_table<int, int, 128> t;
             for (int i = 0; i < 100; ++i)
                 t[i] = i;
             return t;
         }();
-        constexpr auto table_2 = []() {
+        constexpr auto table_2 = [] {
             lmj::static_hash_table<int, int, 128> t;
             lmj::static_vector<int, 128> temp_vec;
             lmj::constexpr_rand_generator<int> gen;

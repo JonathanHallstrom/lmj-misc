@@ -74,7 +74,7 @@ namespace lmj {
                 return false;
             for (std::size_t i = 0; i < _capacity; ++i) {
                 if (_is_set[i] == ACTIVE) {
-                    size_type _idx = other._get_index_read(_table[i].second);
+                    size_type _idx = other._get_index_read(_table[i].first);
                     if (other._is_set[_idx] != ACTIVE)
                         return false;
                     if (other._table[_idx].second != _table[i].second)
@@ -389,8 +389,8 @@ namespace lmj {
 
     // tests
 
-    static_assert([]() {
-        lmj::static_hash_table<int, int, 128> map;
+    static_assert([] {
+        static_hash_table<int, int, 128> map;
         for (int i = 0; i < 50; ++i)
             map[i] = i;
         auto res = 0;
@@ -398,4 +398,13 @@ namespace lmj {
             res += map.at(i);
         return res;
     }() == 50 * 49 / 2);
+
+    static_assert([] {
+        lmj::static_hash_table<short, int, 128> map;
+        for (int i = 0; i < 64; ++i) {
+            map[i] = i * i * i * i;
+        }
+        const auto map2 = map;
+        return true;
+    }());
 }
