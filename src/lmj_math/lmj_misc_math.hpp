@@ -19,8 +19,10 @@ namespace lmj {
             return base;
         if (exp == 0 && base != 0.0)
             return 1;
-        if (exp == 0 && base == 0)
-            throw std::out_of_range("0^0 is undefined");
+        if (exp == 0 && base == 0) {
+            assert(false && "0^0 is undefined");
+            return -1;
+        }
         decltype(base) result = 1;
         while (exp) {
             result *= 1 + (exp & 1) * (base - 1);
