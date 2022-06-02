@@ -132,7 +132,8 @@ namespace lmj {
             size_type _idx = _get_index_read(_key);
             if (_is_set[_idx] == ACTIVE && _table[_idx].first == _key) {
                 --_elem_count;
-                _table[_idx] = pair_type{};
+                _table[_idx].first = key_type{};
+                _table[_idx].second = value_type{};
                 _is_set[_idx] = TOMBSTONE;
             }
         }
