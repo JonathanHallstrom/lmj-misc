@@ -17,7 +17,7 @@ namespace lmj {
     constexpr auto ipow(auto base, std::uint64_t exp) -> decltype(base) {
         if (exp == 1)
             return base;
-        if (exp == 0 && base != 0.0)
+        if (exp == 0 && base != 0)
             return 1;
         if (exp == 0 && base == 0) {
             assert(false && "0^0 is undefined");
