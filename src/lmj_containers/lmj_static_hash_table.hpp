@@ -417,15 +417,16 @@ namespace lmj {
         }();
         auto table_2 = [] {
             lmj::static_hash_table<int, int, 128> t;
-            std::array<int, 100> random_nums{};
+            int random_nums[100]{};
             std::size_t state = 8662772801;
-            for (int i = 0; i < 100; ++i) {
-                random_nums[i] = (static_cast<int>(state));
-                t[static_cast<int>(state)] = 0xBADF00D;
+            for (auto &random_num: random_nums) {
+                random_num = state & 63;
+                t[state & 63] = 0xBADF00D;
                 state = state * 7967335919 + 1078795391;
             }
+            for (auto random_num: random_nums)
+                t.erase(random_num);
             for (int i = 0; i < 100; ++i) {
-                t.erase(random_nums[i]);
                 t[i] = i;
             }
             return t;
