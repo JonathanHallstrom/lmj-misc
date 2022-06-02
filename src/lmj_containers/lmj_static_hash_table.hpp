@@ -407,6 +407,7 @@ namespace lmj {
         const auto map2 = map;
         return map == map2;
     }());
+
     static_assert([] {
         auto table_1 = [] {
             lmj::static_hash_table<int, int, 128> t;
@@ -416,15 +417,15 @@ namespace lmj {
         }();
         auto table_2 = [] {
             lmj::static_hash_table<int, int, 128> t;
-            lmj::static_vector<int, 128> temp_vec;
+            std::array<int, 100> random_nums{};
             std::size_t state = 8662772801;
             for (int i = 0; i < 100; ++i) {
-                temp_vec.push_back(static_cast<int>(state));
+                random_nums[i] = (static_cast<int>(state));
                 t[static_cast<int>(state)] = 0xBADF00D;
                 state = state * 7967335919 + 1078795391;
             }
             for (int i = 0; i < 100; ++i) {
-                t.erase(temp_vec[i]);
+                t.erase(random_nums[i]);
                 t[i] = i;
             }
             return t;
