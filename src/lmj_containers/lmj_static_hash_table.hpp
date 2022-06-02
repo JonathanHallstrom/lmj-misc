@@ -235,7 +235,7 @@ namespace lmj {
         constexpr void _copy(static_hash_table const &other) {
             for (size_type i = 0; i < other.capacity(); ++i) {
                 if (other._is_set[i] == ACTIVE) {
-                    _table[i].first = other._table[i].second;
+                    _table[i].first = other._table[i].first;
                     _table[i].second = other._table[i].second;
                 }
                 _is_set[i] = other._is_set[i];
@@ -321,7 +321,7 @@ namespace lmj {
         constexpr static_hash_table_iterator(static_hash_table<key_t, value_t, _table_capacity, hash_t> *_ptr,
                                              size_type _idx) : _table_ptr{_ptr}, _index{_idx} {}
 
-        constexpr auto & operator++() {
+        constexpr auto &operator++() {
             ++_index;
             while (_index < _table_ptr->capacity() && _table_ptr->_is_set[_index] != ACTIVE) ++_index;
             return *this;
@@ -366,7 +366,7 @@ namespace lmj {
                 static_hash_table<key_t, value_t, _table_capacity, hash_t> const *_ptr,
                 size_type _idx) : _table_ptr{_ptr}, _index{_idx} {}
 
-        constexpr auto & operator++() {
+        constexpr auto &operator++() {
             ++_index;
             while (_index < _table_ptr->capacity() && _table_ptr->_is_set[_index] != ACTIVE) ++_index;
             return *this;
