@@ -421,9 +421,9 @@ namespace lmj {
             int random_nums[100]{};
             std::size_t state = 8662772801;
             for (auto &random_num: random_nums) {
-                random_num = state & 63;
-                t[state & 63] = 0xBADF00D;
                 state = state * 7967335919 + 1078795391;
+                random_num = static_cast<int>(state & 63);
+                t[random_num] = 0xBADF00D;
             }
             for (auto random_num: random_nums)
                 t.erase(random_num);
