@@ -70,18 +70,6 @@ int main() {
         lmj::print("Test 3 passed!");
     }
     {
-        constexpr auto m = [] {
-            lmj::static_hash_table<int, int, 2> t;
-            t[2] = 0;
-            t[4] = 0;
-            t.erase(2);
-            t[1] = 1;
-            return t;
-        }();
-        static_assert(m.at(1) == 1);
-        lmj::print("Test 4 passed!");
-    }
-    {
         lmj::hash_table<int, int> map;
         std::unordered_map<int, int> check;
         std::vector<int> vals;
@@ -109,7 +97,7 @@ int main() {
 
         assert(map.size() == check.size());
 
-        lmj::print("Test 5 passed!");
+        lmj::print("Test 4 passed!");
     }
     {
         lmj::hash_table<int, int> m;
@@ -121,7 +109,7 @@ int main() {
         lmj::hash_table<int, int> const m2 = m;
         for (auto &[key, value]: m2)
             assert(key == value);
-        lmj::print("Test 6 passed!");
+        lmj::print("Test 5 passed!");
     }
     lmj::print("All tests passed!");
 }

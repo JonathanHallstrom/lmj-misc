@@ -434,4 +434,16 @@ namespace lmj {
         }();
         return table_1 == table_2;
     }());
+
+    static_assert([] {
+        constexpr auto m = [] {
+            lmj::static_hash_table<int, int, 2> t;
+            t[2] = 0;
+            t[4] = 0;
+            t.erase(2);
+            t[1] = 1;
+            return t;
+        }();
+        return m.at(1) == 1;
+    }());
 }
