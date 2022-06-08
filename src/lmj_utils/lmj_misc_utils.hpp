@@ -29,33 +29,34 @@ namespace lmj {
     };
 
     template<class T>
-    constexpr int sign(T &&x) {
+    constexpr int sign(T const &x) {
         return (x > 0) - (x < 0);
     }
 
     template<class T = unsigned long long, unsigned long long seed = 0, typename = typename std::enable_if_t<std::is_integral_v<T>, void>>
     auto rand() {
         static constexpr_rand_generator<T> gen{seed};
-        return gen();
+        auto &ref = gen;
+        return ref();
     }
 
     template<class T, class G>
-    constexpr auto min(T &&a, G &&b) noexcept -> decltype(a + b) {
+    constexpr auto min(T const &a, G const &b) noexcept -> decltype(a + b) {
         return a < b ? a : b;
     }
 
     template<class T, class G>
-    constexpr auto max(T &&a, G &&b) noexcept -> decltype(a + b) {
+    constexpr auto max(T const &a, G const &b) noexcept -> decltype(a + b) {
         return a > b ? a : b;
     }
 
     template<class T, class... G>
-    constexpr auto min(T &&a, G &&... b) noexcept {
+    constexpr auto min(T const &a, G const &... b) noexcept {
         return min(a, min(b...));
     }
 
     template<class T, class... G>
-    constexpr auto max(T &&a, G &&... b) noexcept {
+    constexpr auto max(T const &a, G const &... b) noexcept {
         return max(a, max(b...));
     }
 
