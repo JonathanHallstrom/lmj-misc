@@ -8,7 +8,7 @@ namespace lmj {
         unsigned long long x = 230849599040350201, y = 965937400815267857, z = 895234450760720011;
 
     public:
-        constexpr explicit constexpr_rand_generator(T seed) {
+        constexpr explicit constexpr_rand_generator(unsigned long long seed) {
             x ^= static_cast<unsigned long long>(seed);
             y ^= static_cast<unsigned long long>(seed);
             z ^= static_cast<unsigned long long>(seed);
