@@ -5,13 +5,17 @@
 namespace lmj {
     template<class T, typename = typename std::enable_if_t<std::is_integral_v<T>, void>>
     class constexpr_rand_generator { // based on xorshift random number generator by George Marsaglia
-        unsigned long long x = 230849599040350201, y = 965937400815267857, z = 895234450760720011;
+        unsigned long long x, y, z;
 
     public:
-        constexpr explicit constexpr_rand_generator(unsigned long long seed) {
-            x ^= static_cast<unsigned long long>(seed);
-            y ^= static_cast<unsigned long long>(seed);
-            z ^= static_cast<unsigned long long>(seed);
+        constexpr explicit constexpr_rand_generator(unsigned long long seed) : x{}, y{}, z{} {
+            set_seed(seed);
+        }
+
+        constexpr auto set_seed(unsigned long long seed) {
+            x = 230849599040350201 ^ static_cast<unsigned long long>(seed);
+            y = 965937400815267857 ^ static_cast<unsigned long long>(seed);
+            z = 895234450760720011 ^ static_cast<unsigned long long>(seed);
         }
 
         constexpr auto operator()() {
@@ -33,11 +37,17 @@ namespace lmj {
         return (x > 0) - (x < 0);
     }
 
-    template<class T = unsigned long long, unsigned long long seed = 0, typename = typename std::enable_if_t<std::is_integral_v<T>, void>>
-    auto rand() {
-        static constexpr_rand_generator<T> gen{seed};
-        auto &ref = gen;
-        return ref();
+    template<class T>
+    constexpr_rand_generator<T> gen{0};
+
+    template<class T>
+    void set_seed(unsigned long long seed) {
+        gen<T>.set_seed(seed);
+    }
+
+    template<class T = unsigned long long>
+    auto rand() -> std::enable_if_t<std::is_integral_v<T>, T> {
+        return gen<T>();
     }
 
     template<class T, class G>

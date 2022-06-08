@@ -39,8 +39,9 @@ namespace lmj {
     static_assert(number<const int &>);
     static_assert(number<const float &>);
     static_assert(integral<int>);
-    static_assert(signed_integral<int>);
+    static_assert(signed_integral<signed>);
     static_assert(unsigned_integral<unsigned>);
     static_assert(!signed_integral<unsigned>);
-    static_assert(!unsigned_integral<int>);
+    static_assert(!unsigned_integral<signed>);
+    static_assert(numbers<char, int, float, double>);
 }
