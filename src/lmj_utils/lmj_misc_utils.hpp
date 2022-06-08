@@ -44,7 +44,7 @@ namespace lmj {
     }
 
     template<class T>
-    void set_seed(unsigned long long seed) {
+    void srand(unsigned long long seed) {
         _gen_namespace::gen<T>.set_seed(seed);
     }
 
