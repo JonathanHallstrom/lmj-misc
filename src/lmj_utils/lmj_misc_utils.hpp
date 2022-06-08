@@ -16,6 +16,7 @@ namespace lmj {
             x = 230849599040350201 ^ static_cast<unsigned long long>(seed);
             y = 965937400815267857 ^ static_cast<unsigned long long>(seed);
             z = 895234450760720011 ^ static_cast<unsigned long long>(seed);
+            for (int i = 0; i < 128; ++i) operator()();
         }
 
         constexpr auto operator()() {
