@@ -37,17 +37,19 @@ namespace lmj {
         return (x > 0) - (x < 0);
     }
 
-    template<class T>
-    constexpr_rand_generator<T> gen{0};
+    namespace _gen_namespace {
+        template<class T>
+        constexpr_rand_generator<T> gen{0};
+    }
 
     template<class T>
     void set_seed(unsigned long long seed) {
-        gen<T>.set_seed(seed);
+        _gen_namespace::gen<T>.set_seed(seed);
     }
 
     template<class T = unsigned long long>
     auto rand() -> std::enable_if_t<std::is_integral_v<T>, T> {
-        return gen<T>();
+        return _gen_namespace::gen<T>();
     }
 
     template<class T, class G>

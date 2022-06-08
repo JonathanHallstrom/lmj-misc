@@ -19,9 +19,17 @@ namespace lmj {
 
         /**
          * @param _n number of elements
+         */
+        constexpr explicit static_vector(size_type _n) {
+            assert(_n <= _capacity);
+            _size = _n;
+        }
+
+        /**
+         * @param _n number of elements
          * @param _value value elements are set to
          */
-        constexpr explicit static_vector(size_type _n, T const &_value = T{}) {
+        constexpr explicit static_vector(size_type _n, T const &_value) {
             _size = _n;
             for (size_type i = 0; i < _size; ++i)
                 _data[i] = _value;
