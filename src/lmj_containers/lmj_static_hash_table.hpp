@@ -338,7 +338,7 @@ namespace lmj {
             return _table_ptr->_table[_index];
         }
 
-        auto operator->() const {
+        constexpr auto operator->() const {
             return &_table_ptr->_table[_index];
         }
 
@@ -387,7 +387,7 @@ namespace lmj {
             return _table_ptr->_table[_index];
         }
 
-        auto operator->() const {
+        constexpr auto operator->() const {
             return &_table_ptr->_table[_index];
         }
 
