@@ -43,7 +43,7 @@ namespace lmj {
         constexpr_rand_generator<T> gen{0};
     }
 
-    template<class T>
+    template<class T = unsigned long long>
     void srand(unsigned long long seed) {
         _gen_namespace::gen<T>.set_seed(seed);
     }
