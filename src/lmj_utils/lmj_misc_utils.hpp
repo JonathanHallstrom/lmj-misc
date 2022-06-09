@@ -3,7 +3,7 @@
 #include "../lmj_containers/lmj_containers.hpp"
 
 namespace lmj {
-    template<class T, typename = typename std::enable_if_t<std::is_integral_v<T>, void>>
+    template<class T = unsigned long long, typename = typename std::enable_if_t<std::is_integral_v<T>, void>>
     class constexpr_rand_generator { // based on xorshift random number generator by George Marsaglia
         unsigned long long x, y, z;
 
