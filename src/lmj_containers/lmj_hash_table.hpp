@@ -392,6 +392,10 @@ namespace lmj {
             return _table_ptr->_table[_index];
         }
 
+        auto operator->() const {
+            return &_table_ptr->_table[_index];
+        }
+
         bool operator!=(hash_table_iterator const &other) const {
             return _index != other._index || _table_ptr != other._table_ptr;
         }
@@ -434,6 +438,10 @@ namespace lmj {
 
         reference operator*() const {
             return _table_ptr->_table[_index];
+        }
+
+        auto operator->() const {
+            return &_table_ptr->_table[_index];
         }
 
         bool operator!=(hash_table_const_iterator const &other) const {

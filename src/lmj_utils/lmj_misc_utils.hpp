@@ -1,14 +1,22 @@
 #pragma once
 
+#include <string_view>
 #include "../lmj_containers/lmj_containers.hpp"
 
 namespace lmj {
+    constexpr unsigned long long seed_from_str(std::string_view v) {
+        unsigned long long ans = 0;
+        for (auto &&c: v)
+            ans = (ans << 32 | ans >> 32) ^ c;
+        return ans;
+    }
+
     template<class T = unsigned long long, typename = typename std::enable_if_t<std::is_integral_v<T>, void>>
     class constexpr_rand_generator { // based on xorshift random number generator by George Marsaglia
         unsigned long long x, y, z;
 
     public:
-        constexpr explicit constexpr_rand_generator(unsigned long long seed) : x{}, y{}, z{} {
+        constexpr explicit constexpr_rand_generator(unsigned long long seed = seed_from_str(__TIME__)) : x{}, y{}, z{} {
             set_seed(seed);
         }
 
@@ -16,10 +24,11 @@ namespace lmj {
             x = 230849599040350201 ^ static_cast<unsigned long long>(seed);
             y = 965937400815267857 ^ static_cast<unsigned long long>(seed);
             z = 895234450760720011 ^ static_cast<unsigned long long>(seed);
-            for (int i = 0; i < 128; ++i) operator()();
+            for (int i = 0; i < 128; ++i)
+                gen(); // discard first 128 values
         }
 
-        constexpr auto operator()() {
+        constexpr auto gen() {
             x ^= x << 16;
             x ^= x >> 5;
             x ^= x << 1;
@@ -31,6 +40,10 @@ namespace lmj {
 
             return static_cast<T>(z);
         }
+
+        constexpr auto operator()() {
+            return gen();
+        }
     };
 
     template<class T>
@@ -40,7 +53,7 @@ namespace lmj {
 
     namespace _gen_namespace {
         template<class T>
-        constexpr_rand_generator<T> gen{0};
+        constexpr_rand_generator<T> gen{seed_from_str(__TIME__)};
     }
 
     template<class T = unsigned long long>
