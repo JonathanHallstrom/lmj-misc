@@ -251,11 +251,11 @@ namespace lmj {
 
         /**
          * @brief resizes the table and causes a rehash of all elements
-         * fails if _new_capacity is less than current _table_capacity
+         * fails if _new_capacity is less than current number of elements
 		 * @param _new_capacity new capacity of table
          */
         void resize(size_type const _new_capacity) {
-            assert(_new_capacity >= _capacity);
+            assert(_new_capacity >= _elem_count);
             hash_table _other(_new_capacity);
             for (size_type i = 0; i < _capacity; ++i) {
                 if (_is_set[i] == ACTIVE)
@@ -269,6 +269,23 @@ namespace lmj {
                 return _idx & (_capacity - 1);
             else
                 return _idx % _capacity;
+        }
+
+        /**
+         * @note resize but assumes new size fits all elements
+         * @note don't use this without reading the implementation
+         */
+        void _set_size(size_type new_size) {
+            hash_table _other;
+            _other._alloc_size(new_size);
+            for (size_type i = 0; i < _capacity; ++i) {
+                if (_is_set[i] == ACTIVE) {
+                    size_type _idx = _other._get_writable_index(_table[i].first);
+                    new(&_other._table[_idx]) pair_type{_table[i]};
+                    _other._is_set[_idx] = ACTIVE;
+                }
+            }
+            *this = std::move(_other);
         }
 
     private:
