@@ -4,6 +4,7 @@
 
 int main() {
     {
+        // ensure basic functionality of lmj::hash_table
         lmj::hash_table<int, int> map;
         for (int i = 0; i < 1024; ++i)
             map[i] = i;
@@ -23,6 +24,7 @@ int main() {
         lmj::print("Test 2 passed!");
     }
     {
+        // miscellaneous test of lmj::hash_table
         constexpr int NUM_TESTS = 1e3;
         std::unordered_map<int, int> map;
         lmj::hash_table<int, int> check;
@@ -70,6 +72,7 @@ int main() {
         lmj::print("Test 3 passed!");
     }
     {
+        // test removing elements from lmj::hash_table using std::unordered_map to ensure correctness
         lmj::hash_table<int, int> map;
         std::unordered_map<int, int> check;
         std::vector<int> vals;
@@ -95,11 +98,15 @@ int main() {
             check.erase(vals[i]);
         }
 
+        for (auto &[key, val]: check)
+            assert(map.at(key) == val);
+
         assert(map.size() == check.size());
 
         lmj::print("Test 4 passed!");
     }
     {
+        // test copy constructor
         lmj::hash_table<int, int> m;
         for (int i = 0; i < 128; ++i)
             m[i] = i;
@@ -110,6 +117,17 @@ int main() {
         for (auto &[key, value]: m2)
             assert(key == value);
         lmj::print("Test 5 passed!");
+    }
+    {
+        // test lmj::hash_table with a custom hash function
+        auto hash = [](int x) { return x * x; };
+        lmj::hash_table<int, int, decltype(hash)> m(hash);
+        for (int i = 0; i < 1024; ++i)
+            m[i] = i;
+        for (auto &[key, value]: m) {
+            assert(key == value);
+        }
+        lmj::print("Test 6 passed!");
     }
     lmj::print("All tests passed!");
 }
