@@ -81,7 +81,8 @@ int main() {
 
         constexpr int n = 1 << 20;
 
-        for (int i = 0; i < n; ++i) vals.push_back(lmj::rand<int>());
+        for (int i = 0; i < n; ++i)
+            vals.push_back(lmj::rand<int>());
 
         for (int i = 0; i < n; i += 2) {
             map[vals[i]] = 0xBADF00D;
@@ -128,6 +129,18 @@ int main() {
             assert(key == value);
         }
         lmj::print("Test 6 passed!");
+    }
+    {
+        // test lmj::hash_table find
+        lmj::hash_table<int, int> m;
+        for (int i = 0; i < 1024; ++i)
+            m[i] = i;
+        for (int i = 0; i < 1024; ++i) {
+            assert(m.find(i) != m.end());
+            assert(m.find(i)->first == i);
+        }
+        assert(!(m.find(1024) != m.end()));
+        lmj::print("Test 7 passed!");
     }
     lmj::print("All tests passed!");
 }

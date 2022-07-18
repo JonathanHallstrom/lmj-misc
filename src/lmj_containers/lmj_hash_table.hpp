@@ -264,6 +264,25 @@ namespace lmj {
             *this = std::move(_other);
         }
 
+        const_iterator find(key_type const &_key) const {
+            if (!_capacity)
+                return end();
+            size_type _idx = _get_index_read(_key);
+            if (_is_set[_idx] == ACTIVE && _table[_idx].first == _key)
+                return const_iterator(this, _idx);
+            return end();
+        }
+
+        iterator find(key_type const &_key) {
+            if (!_capacity)
+                return end();
+            size_type _idx = _get_index_read(_key);
+            if (_is_set[_idx] == ACTIVE && _table[_idx].first == _key)
+                return iterator(this, _idx);
+            return end();
+        }
+
+
         [[nodiscard]] size_type _clamp_size(size_type _idx) const {
             if ((_capacity & (_capacity - 1)) == 0)
                 return _idx & (_capacity - 1);
@@ -413,6 +432,10 @@ namespace lmj {
             return &_table_ptr->_table[_index];
         }
 
+        bool operator!=(hash_table_const_iterator<key_t, value_t, hash_t> const &other) const {
+            return _index != other._index || _table_ptr != other._table_ptr;
+        }
+
         bool operator!=(hash_table_iterator const &other) const {
             return _index != other._index || _table_ptr != other._table_ptr;
         }
@@ -438,8 +461,11 @@ namespace lmj {
         hash_table<key_t, value_t, hash_t> const *const _table_ptr;
         size_type _index;
 
-        hash_table_const_iterator(hash_table<key_t, value_t, hash_t> const *_ptr, size_type _idx) : _table_ptr{_ptr},
-                                                                                                    _index{_idx} {}
+        hash_table_const_iterator(hash_table<key_t, value_t, hash_t> const *_ptr, size_type _idx) :
+                _table_ptr{_ptr}, _index{_idx} {}
+
+        hash_table_const_iterator(hash_table_iterator<key_t, value_t, hash_t> const &other) :
+                _table_ptr{other._table_ptr}, _index{other._index} {}
 
         auto &operator++() {
             ++_index;
@@ -462,6 +488,10 @@ namespace lmj {
         }
 
         bool operator!=(hash_table_const_iterator const &other) const {
+            return _index != other._index || _table_ptr != other._table_ptr;
+        }
+
+        bool operator!=(hash_table_iterator<key_t, value_t, hash_t> const &other) const {
             return _index != other._index || _table_ptr != other._table_ptr;
         }
     };
