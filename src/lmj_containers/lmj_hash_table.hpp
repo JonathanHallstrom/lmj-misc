@@ -127,8 +127,8 @@ namespace lmj {
          * @return reference to value associated with _key
          */
         value_type &get(key_type const &_key) {
-            if (_should_grow())
-                _grow();
+            if (!_capacity)
+                return emplace(_key, value_type{});
             size_type _idx = _get_index_read(_key);
             return (_is_set[_idx] == ACTIVE && _table[_idx].first == _key) ?
                    _table[_idx].second : emplace(_key, value_type{});
