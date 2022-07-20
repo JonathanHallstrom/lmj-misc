@@ -367,15 +367,27 @@ namespace lmj {
         }
 
         [[nodiscard]] bool _should_grow() const {
-            return (_elem_count + _tomb_count) * 2 >= _capacity;
+            return !_capacity || (_elem_count + _tomb_count) * 2 > _capacity;
         }
 
         void _grow() {
-            constexpr auto default_size = 16;
-            if (_capacity > 0)
-                resize(_capacity * (2 + 6 * (_capacity < 4096)));
-            else
+            constexpr auto default_size = 1;
+            if (_capacity == 0) {
                 resize(default_size);
+            } else {
+                size_type _new_capacity = 1;
+
+                do { // find first power of two which is greater than or equal to current capacity
+                    _new_capacity *= 2;
+                } while (_new_capacity < _capacity);
+
+                if (_new_capacity < 4096) // make small tables grow really fast
+                    _new_capacity = std::min<size_type>(_new_capacity * 8, 8192);
+                else
+                    _new_capacity *= 2;
+
+                resize(_new_capacity);
+            }
         }
 
         void _alloc_size(size_type const _new_capacity) {
