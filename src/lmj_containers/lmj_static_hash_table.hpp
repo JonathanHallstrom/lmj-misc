@@ -105,6 +105,8 @@ namespace lmj {
          * @return reference to value associated with _key
          */
         constexpr value_type &get(key_type const &_key) {
+            if (!_elem_count)
+                return emplace(_key, value_type{});
             size_type _idx = _get_index_read(_key);
             return (_is_set[_idx] == ACTIVE && _table[_idx].first == _key) ?
                    _table[_idx].second : emplace(_key, value_type{});
@@ -162,13 +164,8 @@ namespace lmj {
             return const_iterator(this, _get_end_index());
         }
 
-        /**
-         * @param _key
-         * @param _value
-         * @return reference to _value in table
-         */
-        constexpr value_type &insert(key_type const &_key, value_type const &_value) {
-            return emplace(_key, _value);
+        constexpr value_type &insert(pair_type const &_pair) {
+            return emplace(_pair);
         }
 
         /**
@@ -209,7 +206,7 @@ namespace lmj {
         /**
          * @brief remove all elements
          */
-        void clear() {
+        constexpr void clear() {
             for (size_type i = 0; i < _capacity; ++i) {
                 if (_is_set[i] == ACTIVE) {
                     _table[i].~pair_type();
@@ -217,6 +214,15 @@ namespace lmj {
                 _is_set[i] = INACTIVE;
             }
             _elem_count = 0;
+        }
+
+        [[nodiscard]] constexpr const_iterator find(key_type const &_key) const {
+            if (!_capacity)
+                return end();
+            size_type _idx = _get_index_read(_key);
+            if (_is_set[_idx] == ACTIVE && _table[_idx].first == _key)
+                return const_iterator(this, _idx);
+            return end();
         }
 
     private:

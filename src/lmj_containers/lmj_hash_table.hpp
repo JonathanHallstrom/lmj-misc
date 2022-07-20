@@ -127,7 +127,7 @@ namespace lmj {
          * @return reference to value associated with _key
          */
         value_type &get(key_type const &_key) {
-            if (!_capacity)
+            if (!_capacity || !_elem_count)
                 return emplace(_key, value_type{});
             size_type _idx = _get_index_read(_key);
             return (_is_set[_idx] == ACTIVE && _table[_idx].first == _key) ?
@@ -195,8 +195,8 @@ namespace lmj {
          * @param _value
          * @return reference to _value in table
          */
-        value_type &insert(key_type const &_key, value_type const &_value) {
-            return emplace(_key, _value);
+        value_type &insert(pair_type const &_pair) {
+            return emplace(_pair);
         }
 
         /**
