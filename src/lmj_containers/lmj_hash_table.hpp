@@ -506,5 +506,10 @@ namespace lmj {
         bool operator!=(hash_table_iterator<key_t, value_t, hash_t> const &other) const {
             return _index != other._index || _table_ptr != other._table_ptr;
         }
+
+        template<class T>
+        bool operator==(T const &other) const {
+            return !(*this != other);
+        }
     };
 }

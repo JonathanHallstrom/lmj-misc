@@ -139,7 +139,7 @@ int main() {
             assert(m.find(i) != m.end());
             assert(m.find(i)->first == i);
         }
-        assert(!(m.find(1024) != m.end()));
+        assert(m.find(1024) == m.end());
         lmj::print("Test 7 passed!");
     }
     lmj::print("All tests passed!");
