@@ -451,6 +451,11 @@ namespace lmj {
         bool operator!=(hash_table_iterator const &other) const {
             return _index != other._index || _table_ptr != other._table_ptr;
         }
+
+        template<class T>
+        bool operator==(T const &other) const {
+            return !(*this != other);
+        }
     };
 
     template<class key_t, class value_t, class hash_t>
