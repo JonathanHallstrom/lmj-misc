@@ -21,7 +21,11 @@ namespace lmj {
         [[nodiscard]] auto curr_time() const {
             auto now = high_resolution_clock::now();
             auto dur = duration_cast<nanoseconds>(now - start_time);
-            return double(dur.count()) / 1e9;
+            return static_cast<double>(dur.count()) / 1e9;
+        }
+
+        [[nodiscard]] auto elapsed() const {
+            return curr_time();
         }
 
         ~timer() {
