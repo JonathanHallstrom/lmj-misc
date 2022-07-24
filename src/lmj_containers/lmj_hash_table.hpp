@@ -7,6 +7,15 @@
 #include <cstdint>
 
 namespace lmj {
+    template<class T>
+    constexpr auto next_power_of_two(T x) {
+        T result = 1;
+        while (result < x) {
+            result *= 2;
+        }
+        return result;
+    }
+
     template<class key_t, class value_t, class hash_t>
     class hash_table_iterator;
 
@@ -33,29 +42,28 @@ namespace lmj {
         size_type _capacity{};
         hash_type _hasher{};
 
+        inline hash_table() = default;
 
-        hash_table() = default;
-
-        constexpr hash_table(hash_table const &other) {
+        inline hash_table(hash_table const &other) {
             *this = other;
         }
 
-        constexpr hash_table(hash_table &&other) noexcept {
+        inline hash_table(hash_table &&other) noexcept {
             *this = std::move(other);
         }
 
-        constexpr explicit hash_table(hash_type _hasher) : _hasher{_hasher} {}
+        inline explicit hash_table(hash_type _hasher) : _hasher{_hasher} {}
 
-        explicit hash_table(size_type _size, hash_type _hasher = {}) : _hasher{_hasher} {
+        inline explicit hash_table(size_type _size, hash_type _hasher = {}) : _hasher{_hasher} {
             _alloc_size(_size);
         }
 
-        ~hash_table() {
+        inline ~hash_table() {
             delete[] _is_set;
             delete[] _table;
         }
 
-        hash_table &operator=(hash_table &&other) noexcept {
+        inline hash_table &operator=(hash_table &&other) noexcept {
             if (this == &other || _table == other._table || _is_set == other._is_set)
                 return *this;
             delete[] _table;
@@ -74,7 +82,7 @@ namespace lmj {
             return *this;
         }
 
-        hash_table &operator=(hash_table const &other) {
+        inline hash_table &operator=(hash_table const &other) {
             if (this == &other || _table == other._table || _is_set == other._is_set)
                 return *this;
             _alloc_size(other._capacity);
@@ -90,7 +98,7 @@ namespace lmj {
             return *this;
         }
 
-        bool operator==(hash_table const &other) const {
+        inline bool operator==(hash_table const &other) const {
             if (other.size() != this->size())
                 return false;
             for (std::size_t i = 0; i < _capacity; ++i) {
@@ -108,14 +116,14 @@ namespace lmj {
         /**
          * @return reference to value associated with _key or default constructs value if it doesn't exist
          */
-        value_type &operator[](key_type const &_key) {
+        inline value_type &operator[](key_type const &_key) {
             return get(_key);
         }
 
         /**
          * @return value at _key or fails
          */
-        value_type const &at(key_type const &_key) const {
+        inline value_type const &at(key_type const &_key) const {
             assert(_capacity && "empty hash_table");
             size_type _idx = _get_index_read(_key);
             assert(_is_set[_idx] == ACTIVE && _table[_idx].first == _key && "key not found");
@@ -126,7 +134,7 @@ namespace lmj {
          * @brief gets value at _key or creates new value at _key with default value
          * @return reference to value associated with _key
          */
-        value_type &get(key_type const &_key) {
+        inline value_type &get(key_type const &_key) {
             if (!_capacity || !_elem_count)
                 return emplace(_key, value_type{});
             size_type _idx = _get_index_read(_key);
@@ -137,7 +145,7 @@ namespace lmj {
         /**
          * @return whether _key is in table
          */
-        bool contains(key_type const &_key) {
+        inline bool contains(key_type const &_key) {
             if (!_capacity)
                 return false;
             size_type _idx = _get_index_read(_key);
@@ -147,14 +155,14 @@ namespace lmj {
         /**
          * @param _key key which is removed from table
          */
-        void erase(key_type const &_key) {
+        inline void erase(key_type const &_key) {
             remove(_key);
         }
 
         /**
          * @param _key key which is removed from table
          */
-        void remove(key_type const &_key) {
+        inline void remove(key_type const &_key) {
             if (!_capacity)
                 return;
             size_type _idx = _get_index_read(_key);
@@ -166,27 +174,27 @@ namespace lmj {
             }
         }
 
-        [[nodiscard]] auto begin() {
+        [[nodiscard]] inline auto begin() {
             return iterator(this, _get_start_index());
         }
 
-        [[nodiscard]] auto end() {
+        [[nodiscard]] inline auto end() {
             return iterator(this, _get_end_index());
         }
 
-        [[nodiscard]] auto begin() const {
+        [[nodiscard]] inline auto begin() const {
             return const_iterator(this, _get_start_index());
         }
 
-        [[nodiscard]] auto end() const {
+        [[nodiscard]] inline auto end() const {
             return const_iterator(this, _get_end_index());
         }
 
-        [[nodiscard]] auto cbegin() const {
+        [[nodiscard]] inline auto cbegin() const {
             return const_iterator(this, _get_start_index());
         }
 
-        [[nodiscard]] auto cend() const {
+        [[nodiscard]] inline auto cend() const {
             return const_iterator(this, _get_end_index());
         }
 
@@ -195,7 +203,7 @@ namespace lmj {
          * @param _value
          * @return reference to _value in table
          */
-        value_type &insert(pair_type const &_pair) {
+        inline value_type &insert(pair_type const &_pair) {
             return emplace(_pair);
         }
 
@@ -204,7 +212,7 @@ namespace lmj {
          * @return  reference to newly constructed value
          */
         template<class...G>
-        value_type &emplace(G &&... _pack) {
+        inline value_type &emplace(G &&... _pack) {
             if (_should_grow())
                 _grow();
             static_assert(sizeof...(_pack));
@@ -224,14 +232,14 @@ namespace lmj {
         /**
          * @return number of elements
          */
-        [[nodiscard]] size_type size() const {
+        [[nodiscard]] inline size_type size() const {
             return _elem_count;
         }
 
         /**
          * @return _table_capacity of table
          */
-        [[nodiscard]] size_type capacity() const {
+        [[nodiscard]] inline size_type capacity() const {
             return _capacity;
         }
 
@@ -264,7 +272,7 @@ namespace lmj {
             *this = std::move(_other);
         }
 
-        const_iterator find(key_type const &_key) const {
+        inline const_iterator find(key_type const &_key) const {
             if (!_capacity)
                 return end();
             size_type _idx = _get_index_read(_key);
@@ -273,7 +281,7 @@ namespace lmj {
             return end();
         }
 
-        iterator find(key_type const &_key) {
+        inline iterator find(key_type const &_key) {
             if (!_capacity)
                 return end();
             size_type _idx = _get_index_read(_key);
@@ -283,18 +291,15 @@ namespace lmj {
         }
 
 
-        [[nodiscard]] size_type _clamp_size(size_type _idx) const {
-            if ((_capacity & (_capacity - 1)) == 0)
-                return _idx & (_capacity - 1);
-            else
-                return _idx % _capacity;
+        [[nodiscard]] inline size_type _clamp_size(size_type _idx) const {
+            return _idx & (_capacity - 1);
         }
 
         /**
          * @note resize but assumes new size fits all elements
          * @note don't use this without reading the implementation
          */
-        void _set_size(size_type new_size) {
+        inline void _set_size(size_type new_size) {
             hash_table _other;
             _other._alloc_size(new_size);
             for (size_type i = 0; i < _capacity; ++i) {
@@ -308,7 +313,7 @@ namespace lmj {
         }
 
     private:
-        [[nodiscard]] size_type _get_start_index() const {
+        [[nodiscard]] inline size_type _get_start_index() const {
             if (!_capacity)
                 return 0;
             for (size_type i = 0; i < _capacity; ++i)
@@ -317,28 +322,29 @@ namespace lmj {
             return 0; // should be unreachable;
         }
 
-        [[nodiscard]] size_type _get_end_index() const {
+        [[nodiscard]] inline size_type _get_end_index() const {
             return _capacity;
         }
 
-        [[nodiscard]] size_type _get_hash(key_type const &_key) const {
-            return _clamp_size(_hasher(_key));
+        [[nodiscard]] inline size_type _get_hash(key_type const &_key) const {
+            const auto _hash = _hasher(_key);
+            return _clamp_size(_hash ^ (_hash >> 16) ^ (_hash << 24));
         }
 
-        [[nodiscard]] size_type _new_idx(size_type const _idx) const {
+        [[nodiscard]] inline size_type _new_idx(size_type const _idx) const {
             return _clamp_size(_idx + 1);
         }
 
-        [[nodiscard]] size_type _get_index_read(key_type const &_key) const {
+        [[nodiscard]] inline size_type _get_index_read(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
             return _get_index_read_impl(_key, _idx);
         }
 
-        [[nodiscard]] size_type _get_index_read(key_type const &_key, size_type _idx) const {
+        [[nodiscard]] inline size_type _get_index_read(key_type const &_key, size_type _idx) const {
             return _get_index_read_impl(_key, _idx);
         }
 
-        [[nodiscard]] size_type _get_index_read_impl(key_type const &_key, size_type _idx) const {
+        [[nodiscard]] inline size_type _get_index_read_impl(key_type const &_key, size_type _idx) const {
             std::size_t _iterations = 0;
             while ((_is_set[_idx] == TOMBSTONE ||
                     (_is_set[_idx] == ACTIVE && _table[_idx].first != _key))
@@ -348,16 +354,16 @@ namespace lmj {
             return _idx;
         }
 
-        [[nodiscard]] size_type _get_writable_index(key_type const &_key) const {
+        [[nodiscard]] inline size_type _get_writable_index(key_type const &_key) const {
             size_type _idx = _get_hash(_key);
             return _get_writable_index_impl(_key, _idx);
         }
 
-        [[nodiscard]] size_type _get_writable_index(key_type const &_key, size_type _idx) const {
+        [[nodiscard]] inline size_type _get_writable_index(key_type const &_key, size_type _idx) const {
             return _get_writable_index_impl(_key, _idx);
         }
 
-        [[nodiscard]] size_type _get_writable_index_impl(key_type const &_key, size_type _idx) const {
+        [[nodiscard]] inline size_type _get_writable_index_impl(key_type const &_key, size_type _idx) const {
             std::size_t _iterations = 0;
             while (_is_set[_idx] == ACTIVE && _table[_idx].first != _key) {
                 assert(_iterations++ < _capacity && "element not found");
@@ -366,7 +372,7 @@ namespace lmj {
             return _idx;
         }
 
-        [[nodiscard]] bool _should_grow() const {
+        [[nodiscard]] inline bool _should_grow() const {
             return !_capacity || (_elem_count + _tomb_count) * 2 > _capacity;
         }
 
@@ -375,11 +381,7 @@ namespace lmj {
             if (_capacity == 0) {
                 resize(default_size);
             } else {
-                size_type _new_capacity = 1;
-
-                do { // find first power of two which is greater than or equal to current capacity
-                    _new_capacity *= 2;
-                } while (_new_capacity < _capacity);
+                size_type _new_capacity = next_power_of_two(_capacity);
 
                 if (_new_capacity < 4096) // make small tables grow really fast
                     _new_capacity = std::min<size_type>(_new_capacity * 8, 8192);
@@ -390,7 +392,9 @@ namespace lmj {
             }
         }
 
-        void _alloc_size(size_type const _new_capacity) {
+        void _alloc_size(size_type _new_capacity) {
+            if (_new_capacity & (_new_capacity - 1))
+                _new_capacity = next_power_of_two(_new_capacity);
             delete[] _is_set;
             delete[] _table;
             _is_set = new bool_type[_new_capacity]{};
@@ -424,36 +428,36 @@ namespace lmj {
         hash_table_iterator(hash_table<key_t, value_t, hash_t> *_ptr, size_type _idx) : _table_ptr{_ptr},
                                                                                         _index{_idx} {}
 
-        auto &operator++() {
+        inline auto &operator++() {
             ++_index;
             while (_index < _table_ptr->capacity() && _table_ptr->_is_set[_index] != ACTIVE) ++_index;
             return *this;
         }
 
-        auto &operator--() {
+        inline auto &operator--() {
             --_index;
             while (_index > 0 && _table_ptr->_is_set[_index] != ACTIVE) --_index;
             return *this;
         }
 
-        reference operator*() const {
+        inline reference operator*() const {
             return _table_ptr->_table[_index];
         }
 
-        auto operator->() const {
+        inline auto operator->() const {
             return &_table_ptr->_table[_index];
         }
 
-        bool operator!=(hash_table_const_iterator<key_t, value_t, hash_t> const &other) const {
+        inline bool operator!=(hash_table_const_iterator<key_t, value_t, hash_t> const &other) const {
             return _index != other._index || _table_ptr != other._table_ptr;
         }
 
-        bool operator!=(hash_table_iterator const &other) const {
+        inline bool operator!=(hash_table_iterator const &other) const {
             return _index != other._index || _table_ptr != other._table_ptr;
         }
 
         template<class T>
-        bool operator==(T const &other) const {
+        inline bool operator==(T const &other) const {
             return !(*this != other);
         }
     };
@@ -478,42 +482,42 @@ namespace lmj {
         hash_table<key_t, value_t, hash_t> const *const _table_ptr;
         size_type _index;
 
-        hash_table_const_iterator(hash_table<key_t, value_t, hash_t> const *_ptr, size_type _idx) :
+        inline hash_table_const_iterator(hash_table<key_t, value_t, hash_t> const *_ptr, size_type _idx) :
                 _table_ptr{_ptr}, _index{_idx} {}
 
-        hash_table_const_iterator(hash_table_iterator<key_t, value_t, hash_t> const &other) :
+        inline hash_table_const_iterator(hash_table_iterator<key_t, value_t, hash_t> const &other) :
                 _table_ptr{other._table_ptr}, _index{other._index} {}
 
-        auto &operator++() {
+        inline auto &operator++() {
             ++_index;
             while (_index < _table_ptr->capacity() && _table_ptr->_is_set[_index] != ACTIVE) ++_index;
             return *this;
         }
 
-        auto &operator--() {
+        inline auto &operator--() {
             --_index;
             while (_index > 0 && _table_ptr->_is_set[_index] != ACTIVE) --_index;
             return *this;
         }
 
-        reference operator*() const {
+        inline reference operator*() const {
             return _table_ptr->_table[_index];
         }
 
-        auto operator->() const {
+        inline auto operator->() const {
             return &_table_ptr->_table[_index];
         }
 
-        bool operator!=(hash_table_const_iterator const &other) const {
+        inline bool operator!=(hash_table_const_iterator const &other) const {
             return _index != other._index || _table_ptr != other._table_ptr;
         }
 
-        bool operator!=(hash_table_iterator<key_t, value_t, hash_t> const &other) const {
+        inline bool operator!=(hash_table_iterator<key_t, value_t, hash_t> const &other) const {
             return _index != other._index || _table_ptr != other._table_ptr;
         }
 
         template<class T>
-        bool operator==(T const &other) const {
+        inline bool operator==(T const &other) const {
             return !(*this != other);
         }
     };
