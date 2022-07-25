@@ -4,17 +4,15 @@
 #include <functional>
 
 namespace lmj {
-    template<class T>
-    using unqualified_t = std::remove_reference_t<std::remove_const_t<T>>;
-    template<class T> concept integral = std::is_integral_v<unqualified_t<T>>;
+    template<class T> concept integral = std::is_integral_v<std::remove_cvref_t<T>>;
     template<class T> concept unsigned_integral = integral<T> &&
-                                                  !std::is_signed_v<unqualified_t<T>>;
+                                                  !std::is_signed_v<std::remove_cvref_t<T>>;
     template<class T> concept signed_integral = integral<T> &&
-                                                std::is_signed_v<unqualified_t<T>>;
+                                                std::is_signed_v<std::remove_cvref_t<T>>;
 
     template<class T>
-    concept number = std::is_integral_v<unqualified_t<T>> ||
-                     std::is_floating_point_v<unqualified_t<T>>;
+    concept number = std::is_integral_v<std::remove_cvref_t<T>> ||
+                     std::is_floating_point_v<std::remove_cvref_t<T>>;
 
     template<class T> concept iterable = requires(T x) {
         std::begin(x);
