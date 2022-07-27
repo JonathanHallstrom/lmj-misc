@@ -7,6 +7,22 @@
 #include "lmj_container_helpers.hpp"
 
 namespace lmj {
+    template<class... Args>
+    struct first_type;
+
+    template<class T, class... Args>
+    struct first_type<T, Args...> {
+        using type = T;
+    };
+
+    template<class... Args>
+    using first_type_t = typename first_type<Args...>::type;
+
+    template<class... Args>
+    constexpr auto all_same_types() {
+        return !sizeof...(Args) || (... && std::is_same_v<Args, first_type_t<Args...>>);
+    }
+
     template<class T, std::size_t _capacity>
     class static_vector {
     public:
@@ -44,9 +60,10 @@ namespace lmj {
             }
         }
 
-        constexpr static_vector(std::initializer_list<T> l) {
-            for (auto &&i: l)
-                emplace_back(i);
+        template<class... Args>
+        constexpr explicit static_vector(Args &&... args)
+                : _data{std::forward<Args>(args)...}, _size(sizeof...(Args)) {
+            static_assert(all_same_types<Args...>(), "All arguments must be of the same type");
         }
 
         /**
@@ -186,11 +203,48 @@ namespace lmj {
         auto rbegin() = delete;
 
         auto rend() = delete;
+
+        template<size_t _other_capacity>
+        constexpr auto operator==(static_vector<T, _other_capacity> const &_other) const {
+            if (_size != _other._size)
+                return false;
+            for (size_type i = 0; i < _size; ++i)
+                if (_data[i] != _other._data[i])
+                    return false;
+            return true;
+        }
+
+        template<class G>
+        constexpr auto operator!=(G const &other) {
+            return !(*this == other);
+        }
     };
 
-    template<class... T>
-    constexpr auto make_static_vector(T &&... args) {
-        using elem_type = typename decltype(std::array{args...})::value_type;
-        return static_vector<elem_type, sizeof...(T)>{args...};
+    template<class... Args>
+    static_vector(Args &&...) -> static_vector<first_type_t<Args...>, sizeof...(Args)>;
+
+    template<class... Args>
+    constexpr auto make_static_vector(Args &&... args) {
+        return static_vector{std::forward<Args>(args)...};
     }
+
+    // testing
+    static_assert(std::is_same_v<static_vector<int, 3>, decltype(make_static_vector(1, 2, 3))>);
+    static_assert([] {
+        static_vector<int, 1> v;
+        return v.push_back(1) == 1;
+    }());
+    static_assert([] {
+        static_vector<int, 1> a;
+        a.push_back(1);
+        static_vector b{1};
+        return a == b;
+    }());
+    static_assert([] {
+        static_vector<int, 2> a;
+        a.push_back(1);
+        static_vector b{1};
+        return a == b;
+    }());
 }
+
