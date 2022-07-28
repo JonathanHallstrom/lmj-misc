@@ -264,7 +264,7 @@ namespace lmj {
          */
         void resize(size_type const _new_capacity) {
             assert(_new_capacity >= _elem_count);
-            hash_table _other(_new_capacity);
+            hash_table _other(_new_capacity, _hasher);
             for (size_type i = 0; i < _capacity; ++i) {
                 if (_is_set[i] == ACTIVE)
                     _other.emplace(_table[i]);
