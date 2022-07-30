@@ -1,12 +1,9 @@
 #pragma once
 
 #include <chrono>
-
-#include "../lmj_io/lmj_io.hpp"
+#include <iostream>
 
 namespace lmj {
-    void debug(auto &&x);
-
     using namespace std::chrono;
 
     struct timer {
@@ -30,7 +27,7 @@ namespace lmj {
 
         ~timer() {
             if (print) {
-                lmj::debug(curr_time());
+                std::cerr << curr_time() << "s\n";
             }
         }
     };
