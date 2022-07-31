@@ -4,6 +4,7 @@
 #include <cassert>
 #include <limits>
 #include <array>
+#include <cstdint>
 #include "lmj_container_helpers.hpp"
 
 namespace lmj {
