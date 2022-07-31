@@ -1,5 +1,7 @@
 #pragma once
 
+#include <limits>
+
 namespace lmj {
     /**
      * @tparam n an unsigned int value
