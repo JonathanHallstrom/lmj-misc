@@ -60,10 +60,14 @@ namespace lmj {
             }
         }
 
+        constexpr static_vector(static_vector const &) = default;
+
+        constexpr static_vector(static_vector &&) noexcept = default;
+
         template<class... Args>
         constexpr explicit static_vector(Args &&... args)
                 : _data{std::forward<Args>(args)...}, _size(sizeof...(Args)) {
-            static_assert(all_same_types<Args...>(), "All arguments must be of the same type");
+            static_assert(all_same_types<Args ...>(), "All arguments must be of the same type");
         }
 
         /**
@@ -96,7 +100,8 @@ namespace lmj {
         template<class...Args>
         constexpr auto &emplace_back(Args &&... _args) {
             assert(_size < _capacity && "out of space in static_vector");
-            return _data[_size++] = T(std::forward<Args &&...>(_args...));
+            _data[_size++] = T(std::forward<Args &&...>(_args...));
+            return _data[_size - 1];
         }
 
         /**
