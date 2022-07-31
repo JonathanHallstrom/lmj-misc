@@ -65,6 +65,22 @@ namespace lmj {
 
         constexpr static_vector(static_vector &&) noexcept = default;
 
+        template<std::size_t _other_capacity>
+        constexpr explicit static_vector(static_vector<T, _other_capacity> const &_other) {
+            assert(_other._size <= _capacity);
+            _size = _other._size;
+            for (size_type i = 0; i < _size; ++i)
+                _data[i] = _other._data[i];
+        }
+
+        template<std::size_t _other_capacity>
+        constexpr explicit static_vector(static_vector<T, _other_capacity> &&_other) noexcept {
+            assert(_other._size <= _capacity);
+            _size = _other._size;
+            for (size_type i = 0; i < _size; ++i)
+                _data[i] = std::move(_other._data[i]);
+        }
+
         template<class... Args>
         constexpr explicit static_vector(Args &&... args)
                 : _data{std::forward<Args>(args)...}, _size(sizeof...(Args)) {
