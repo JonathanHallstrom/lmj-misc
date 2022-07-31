@@ -81,6 +81,13 @@ namespace lmj {
                 _data[i] = std::move(_other._data[i]);
         }
 
+        constexpr static_vector(std::initializer_list<T> _il) {
+            assert(_il.size() <= _capacity);
+            _size = _il.size();
+            for (size_type i = 0; i < _size; ++i)
+                _data[i] = _il.begin()[i];
+        }
+
         /**
          * @return size of vector
          */
@@ -251,13 +258,11 @@ namespace lmj {
     static_assert([] {
         static_vector<int, 1> a;
         a.push_back(1);
-        auto b = make_static_vector(1);
+        static_vector<int, 2> b{1};
         return a == b;
     }());
     static_assert([] {
-        static_vector<int, 2> a;
-        a.push_back(1);
-        return a == make_static_vector(1);
+        return static_vector<int, 2>{1} == static_vector<int, 1>{1};
     }());
 }
 
