@@ -210,7 +210,7 @@ namespace lmj {
 
         auto rend() = delete;
 
-        template<size_t _other_capacity>
+        template<std::size_t _other_capacity>
         constexpr auto operator==(static_vector<T, _other_capacity> const &_other) const {
             if (_size != _other._size)
                 return false;
