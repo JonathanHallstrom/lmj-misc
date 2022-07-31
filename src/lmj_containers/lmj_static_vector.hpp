@@ -237,9 +237,6 @@ namespace lmj {
     };
 
     template<class... Args>
-    static_vector(Args &&...) -> static_vector<first_type_t<Args...>, sizeof...(Args)>;
-
-    template<class... Args>
     constexpr auto make_static_vector(Args &&... args) {
         std::array<first_type_t<Args...>, sizeof...(Args)> arr{std::forward<Args>(args)...};
         return static_vector<first_type_t<Args...>, sizeof...(Args)>{arr.begin(), arr.end()};
