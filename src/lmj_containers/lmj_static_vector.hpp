@@ -81,12 +81,6 @@ namespace lmj {
                 _data[i] = std::move(_other._data[i]);
         }
 
-        template<class... Args>
-        constexpr explicit static_vector(Args &&... args)
-                : _data{std::forward<Args>(args)...}, _size(sizeof...(Args)) {
-            static_assert(all_same_types<Args ...>(), "All arguments must be of the same type");
-        }
-
         /**
          * @return size of vector
          */
@@ -247,7 +241,8 @@ namespace lmj {
 
     template<class... Args>
     constexpr auto make_static_vector(Args &&... args) {
-        return static_vector{std::forward<Args>(args)...};
+        std::array<first_type_t<Args...>, sizeof...(Args)> arr{std::forward<Args>(args)...};
+        return static_vector<first_type_t<Args...>, sizeof...(Args)>{arr.begin(), arr.end()};
     }
 
     // testing
@@ -259,14 +254,13 @@ namespace lmj {
     static_assert([] {
         static_vector<int, 1> a;
         a.push_back(1);
-        static_vector b{1};
+        auto b = make_static_vector(1);
         return a == b;
     }());
     static_assert([] {
         static_vector<int, 2> a;
         a.push_back(1);
-        static_vector b{1};
-        return a == b;
+        return a == make_static_vector(1);
     }());
 }
 
