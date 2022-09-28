@@ -58,20 +58,33 @@ public:
 
     constexpr static_vector(static_vector &&) noexcept = default;
 
+
     template<std::size_t _other_capacity>
-    constexpr explicit static_vector(static_vector<T, _other_capacity> const &_other) {
+    constexpr auto &operator=(static_vector<T, _other_capacity> const &_other) {
         assert(_other._size <= _capacity);
         _size = _other._size;
         for (size_type i = 0; i < _size; ++i)
             _data[i] = _other._data[i];
+        return *this;
     }
 
     template<std::size_t _other_capacity>
-    constexpr explicit static_vector(static_vector<T, _other_capacity> &&_other) noexcept {
+    constexpr auto &operator=(static_vector<T, _other_capacity> &&_other) {
         assert(_other._size <= _capacity);
         _size = _other._size;
         for (size_type i = 0; i < _size; ++i)
             _data[i] = std::move(_other._data[i]);
+        return *this;
+    }
+
+    template<std::size_t _other_capacity>
+    constexpr explicit static_vector(static_vector<T, _other_capacity> const &_other) {
+        *this = _other;
+    }
+
+    template<std::size_t _other_capacity>
+    constexpr explicit static_vector(static_vector<T, _other_capacity> &&_other) noexcept {
+        *this = std::move(_other);
     }
 
     constexpr static_vector(std::initializer_list<T> _il) {
