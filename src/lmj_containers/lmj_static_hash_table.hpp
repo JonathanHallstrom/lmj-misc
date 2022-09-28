@@ -30,7 +30,7 @@ class static_hash_table {
 public:
     static_assert(_capacity && "a _table_capacity of zero is not allowed");
     using pair_type = std::pair<key_type, value_type>;
-    using size_type = decltype(needed_uint<_capacity>());
+    using size_type = decltype(detail::needed_uint<_capacity>());
     using bool_type = std::uint8_t;
     using iterator = static_hash_table_iterator<key_type, value_type, _capacity, hash_type>;
     using const_iterator = static_hash_table_const_iterator<key_type, value_type, _capacity, hash_type>;

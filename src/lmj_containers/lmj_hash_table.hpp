@@ -7,13 +7,16 @@
 #include <cstdint>
 
 namespace lmj {
+namespace detail {
 template<class T>
-constexpr auto next_power_of_two(T x) {
+constexpr auto next_power_of_two_inclusive(T x) {
     T result = 1;
     while (result < x) {
         result *= 2;
     }
     return result;
+}
+
 }
 
 template<class key_t, class value_t, class hash_t>
@@ -381,7 +384,7 @@ private:
         if (_capacity == 0) {
             resize(default_size);
         } else {
-            size_type _new_capacity = next_power_of_two(_capacity);
+            size_type _new_capacity = detail::next_power_of_two_inclusive(_capacity);
 
             if (_new_capacity < 4096) // make small tables grow really fast
                 _new_capacity = std::min<size_type>(_new_capacity * 8, 8192);
@@ -394,7 +397,7 @@ private:
 
     void _alloc_size(size_type _new_capacity) {
         if (_new_capacity & (_new_capacity - 1))
-            _new_capacity = next_power_of_two(_new_capacity);
+            _new_capacity = detail::next_power_of_two_inclusive(_new_capacity);
         delete[] _is_set;
         delete[] _table;
         _is_set = new bool_type[_new_capacity]{};

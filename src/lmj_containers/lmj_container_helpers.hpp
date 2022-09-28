@@ -2,7 +2,7 @@
 
 #include <limits>
 
-namespace lmj {
+namespace lmj::detail {
 /**
  * @tparam n an unsigned int value
  * @return 0 with the smallest type which can represent n
@@ -22,9 +22,9 @@ consteval auto needed_uint() {
 
 // tests
 
-static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint8_t>::min()>()) == 1);
-static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint8_t>::max()>()) == 1);
-static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint16_t>::max()>()) == 2);
-static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint32_t>::max()>()) == 4);
-static_assert(sizeof(lmj::needed_uint<std::numeric_limits<std::uint64_t>::max()>()) == 8);
+static_assert(sizeof(needed_uint<std::numeric_limits<std::uint8_t>::min()>()) == 1);
+static_assert(sizeof(needed_uint<std::numeric_limits<std::uint8_t>::max()>()) == 1);
+static_assert(sizeof(needed_uint<std::numeric_limits<std::uint16_t>::max()>()) == 2);
+static_assert(sizeof(needed_uint<std::numeric_limits<std::uint32_t>::max()>()) == 4);
+static_assert(sizeof(needed_uint<std::numeric_limits<std::uint64_t>::max()>()) == 8);
 }
