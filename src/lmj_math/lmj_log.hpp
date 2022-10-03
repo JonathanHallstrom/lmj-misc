@@ -25,11 +25,11 @@ constexpr auto ln_cp_impl(long double n) {
     while (low.value * hundred_exp < n) // speed up finding first value less than n
         low.value *= hundred_exp, low.exponent += 100.0l;
 
-    while (low.value * 1.001l < n) // find first power of 1.001 strictly less than n (1.001 ^ low.second < n)
+    while (low.value * 1.001l < n) // find the greatest power of 1.001 strictly less than n (1.001 ^ low.second < n)
         low.value *= 1.001l, low.exponent += 1.0l;
 
     auto high = low;
-    while (high.value < n) // find first power of 1.001 strictly greater than n (1.001 ^ high.second > n)
+    while (high.value < n) // find the smallest power of 1.001 strictly greater than n (1.001 ^ high.second > n)
         high.value *= 1.001l, high.exponent += 1.0l;
 
     if (low.value == n) // if we found an exact value return early
