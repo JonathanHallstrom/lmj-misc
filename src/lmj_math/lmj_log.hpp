@@ -17,7 +17,7 @@ constexpr auto ln_cp_impl(long double n) {
 
     auto low = approximation{1.0l, 0.0l};
 
-    constexpr long double thousand_exp = 2.716923932235892457383l; // coincidentally close to e
+    constexpr long double thousand_exp = 2.716923932235892457383l; // (not) coincidentally close to e
     while (low.value * thousand_exp < n) // speed up finding first value less than n
         low.value *= thousand_exp, low.exponent += 1000.0l;
 
@@ -32,9 +32,9 @@ constexpr auto ln_cp_impl(long double n) {
     while (high.value < n) // find the smallest power of 1.001 strictly greater than n (1.001 ^ high.second > n)
         high.value *= 1.001l, high.exponent += 1.0l;
 
-    if (low.value == n) // if we found an exact value return early
+    if (low.value == n) // if an exact value is found, return early
         return low.exponent * ln_1001;
-    if (high.value == n) // if we found an exact value return early
+    if (high.value == n) // if an exact value is found, return early
         return high.exponent * ln_1001;
 
     auto const t = (high.value - n) / (high.value - low.value); // for linear interpolation below
