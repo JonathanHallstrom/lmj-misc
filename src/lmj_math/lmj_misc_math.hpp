@@ -54,24 +54,27 @@ constexpr biggest_float _exp_small(biggest_float x, int n = 32) {
 }
 
 /**
- * @brief only use if std::exp is not available for constexpr, this is much slower than std::exp
  * @param x
  * @return e ^ x
  */
 constexpr long double exp(long double x) {
-    assert(-11356 <= x && x <= 11356);
-    if (x == 0)
-        return 1;
-    if (x < 0)
-        return 1.0l / lmj::exp(-x);
-    if (x > 1) {
-        constexpr auto e = _exp_small(1);
-        const auto whole_part = static_cast<unsigned>(x);
-        const auto fractional_part = x - static_cast<long double>(whole_part);
-        return static_cast<long double>(ipow(e, whole_part) * _exp_small(fractional_part));
+    if (std::is_constant_evaluated()) {
+        assert(-11356 <= x && x <= 11356);
+        if (x == 0)
+            return 1;
+        if (x < 0)
+            return 1.0l / lmj::exp(-x);
+        if (x > 1) {
+            constexpr auto e = _exp_small(1);
+            const auto whole_part = static_cast<unsigned>(x);
+            const auto fractional_part = x - static_cast<long double>(whole_part);
+            return static_cast<long double>(ipow(e, whole_part) * _exp_small(fractional_part));
+        }
+        // only if x >= 0 and x <= 1
+        return static_cast<long double>(_exp_small(x));
+    } else {
+        return std::exp(x);
     }
-    // only if x >= 0 and x <= 1
-    return static_cast<long double>(_exp_small(x));
 }
 
 /**
