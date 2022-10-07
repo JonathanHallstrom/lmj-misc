@@ -19,10 +19,8 @@ constexpr auto ipow(auto base, std::uint64_t exp) -> decltype(base) {
         return base;
     if (exp == 0 && base != 0)
         return 1;
-    if (exp == 0 && base == 0) {
-        assert(false && "0^0 is undefined");
-        return -1;
-    }
+    if (exp == 0 && base == 0)
+        throw std::out_of_range("0^0 is undefined");
     decltype(base) result = 1;
     while (exp) {
         result *= 1 + (exp & 1) * (base - 1);
