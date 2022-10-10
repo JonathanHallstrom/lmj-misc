@@ -10,6 +10,8 @@ template<class T> concept unsigned_integral = integral<T> &&
 template<class T> concept signed_integral = integral<T> &&
                                             std::is_signed_v<std::remove_cvref_t<T>>;
 
+template<class T> concept floating_point = std::is_floating_point_v<std::remove_cvref_t<T>>;
+
 template<class T>
 concept number = std::is_integral_v<std::remove_cvref_t<T>> ||
                  std::is_floating_point_v<std::remove_cvref_t<T>>;
