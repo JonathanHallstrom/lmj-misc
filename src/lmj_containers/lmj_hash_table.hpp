@@ -16,7 +16,6 @@ constexpr auto next_power_of_two_inclusive(T x) {
     }
     return result;
 }
-
 }
 
 template<class key_t, class value_t, class hash_t>
@@ -55,11 +54,13 @@ public:
         *this = std::move(other);
     }
 
+    hash_table(std::initializer_list<pair_type> l) {
+        for (auto &p: l) emplace(std::move(p));
+    }
+
     explicit hash_table(hash_type _hasher) : _hasher{_hasher} {}
 
-    explicit hash_table(size_type _size, hash_type _hasher = {}) : _hasher{_hasher} {
-        _alloc_size(_size);
-    }
+    explicit hash_table(size_type _size, hash_type _hasher = {}) : _hasher{_hasher} { _alloc_size(_size); }
 
     ~hash_table() {
         delete[] _is_set;
@@ -75,7 +76,8 @@ public:
         _is_set = other._is_set;
         _elem_count = other._elem_count;
         _capacity = other._capacity;
-        _hasher = other._hasher;
+        if constexpr (std::is_copy_assignable_v<hash_type>)
+            _hasher = other._hasher;
         _tomb_count = other._tomb_count;
         other._is_set = nullptr;
         other._table = nullptr;
@@ -90,27 +92,28 @@ public:
             return *this;
         _alloc_size(other._capacity);
         for (size_type i = 0; i < other._capacity; ++i) {
-            if (other._is_set[i] == ACTIVE)
-                new(&_table[i]) pair_type(other._table[i]);
-            _is_set[i] = other._is_set[i];
+            if (other._is_set[i] == ACTIVE) {
+                new(&_table[i]) pair_type{other._table[i]};
+                _is_set[i] = other._is_set[i];
+            }
         }
         _tomb_count = 0;
         _elem_count = other._elem_count;
         _capacity = other._capacity;
-        _hasher = other._hasher;
+        if constexpr (std::is_copy_assignable_v<hash_type>)
+            _hasher = other._hasher;
         return *this;
     }
 
-    bool operator==(hash_table const &other) const {
+    template<class hash_t>
+    bool operator==(hash_table<key_type, value_type, hash_t> const &other) const {
         if (other.size() != this->size())
             return false;
-        for (std::size_t i = 0; i < _capacity; ++i) {
-            if (_is_set[i] == ACTIVE) {
-                size_type _idx = other._get_index_read(_table[i].second);
-                if (other._is_set[_idx] != ACTIVE)
-                    return false;
-                if (other._table[_idx].second != _table[i].second)
-                    return false;
+        for (size_type i = 0; i < _capacity; ++i) {
+            if (_is_set[i] == ACTIVE &&
+                other.contains(_table[i].first) &&
+                other.at(_table[i].first) != _table[i].second) {
+                return false;
             }
         }
         return true;
@@ -148,8 +151,8 @@ public:
     /**
      * @return whether _key is in table
      */
-    bool contains(key_type const &_key) {
-        if (!_capacity)
+    bool contains(key_type const &_key) const {
+        if (!_elem_count)
             return false;
         size_type _idx = _get_index_read(_key);
         return _is_set[_idx] == ACTIVE && _table[_idx].first == _key;
@@ -166,7 +169,7 @@ public:
      * @param _key key which is removed from table
      */
     void remove(key_type const &_key) {
-        if (!_capacity)
+        if (!_elem_count)
             return;
         size_type _idx = _get_index_read(_key);
         if (_is_set[_idx] == ACTIVE && _table[_idx].first == _key) {
@@ -219,8 +222,8 @@ public:
         if (_should_grow())
             _grow();
         static_assert(sizeof...(_pack));
-        auto _p = pair_type{_pack...};
-        size_type _hash = _get_hash(_p.first);
+        auto _p = pair_type{std::forward<G>(_pack)...};
+        const size_type _hash = _get_hash(_p.first);
         size_type _idx = _get_index_read(_p.first, _hash);
         if (_is_set[_idx] == ACTIVE && _table[_idx].first == _p.first)
             return _table[_idx].second;
@@ -228,7 +231,7 @@ public:
         ++_elem_count;
         _tomb_count -= _is_set[_idx] == TOMBSTONE;
         _is_set[_idx] = ACTIVE;
-        new(_table + _idx) pair_type(_p);
+        new(_table + _idx) pair_type{std::move(_p)};
         return _table[_idx].second;
     }
 
@@ -276,7 +279,7 @@ public:
     }
 
     const_iterator find(key_type const &_key) const {
-        if (!_capacity)
+        if (!_elem_count)
             return end();
         size_type _idx = _get_index_read(_key);
         if (_is_set[_idx] == ACTIVE && _table[_idx].first == _key)
@@ -285,7 +288,7 @@ public:
     }
 
     iterator find(key_type const &_key) {
-        if (!_capacity)
+        if (!_elem_count)
             return end();
         size_type _idx = _get_index_read(_key);
         if (_is_set[_idx] == ACTIVE && _table[_idx].first == _key)
@@ -293,9 +296,11 @@ public:
         return end();
     }
 
-
     [[nodiscard]] size_type _clamp_size(size_type _idx) const {
-        return _idx & (_capacity - 1);
+        if (_capacity & (_capacity - 1))
+            return _idx % _capacity;
+        else
+            return _idx & (_capacity - 1);
     }
 
     /**
@@ -330,8 +335,8 @@ private:
     }
 
     [[nodiscard]] size_type _get_hash(key_type const &_key) const {
-        const auto _hash = _hasher(_key);
-        return _clamp_size(_hash ^ (_hash >> 16) ^ (_hash << 24));
+        const size_type _hash = _hasher(_key);
+        return _clamp_size(_hash ^ (~_hash >> 16) ^ (_hash << 24));
     }
 
     [[nodiscard]] size_type _new_idx(size_type const _idx) const {
@@ -339,8 +344,7 @@ private:
     }
 
     [[nodiscard]] size_type _get_index_read(key_type const &_key) const {
-        size_type _idx = _get_hash(_key);
-        return _get_index_read_impl(_key, _idx);
+        return _get_index_read_impl(_key, _get_hash(_key));
     }
 
     [[nodiscard]] size_type _get_index_read(key_type const &_key, size_type _idx) const {
@@ -349,17 +353,15 @@ private:
 
     [[nodiscard]] size_type _get_index_read_impl(key_type const &_key, size_type _idx) const {
         std::size_t _iterations = 0;
-        while ((_is_set[_idx] == TOMBSTONE ||
-                (_is_set[_idx] == ACTIVE && _table[_idx].first != _key))
-               && _iterations++ < _capacity) {
+        while ((_is_set[_idx] == TOMBSTONE || (_is_set[_idx] == ACTIVE && _table[_idx].first != _key)) &&
+               _iterations++ < _capacity) {
             _idx = _new_idx(_idx);
         }
         return _idx;
     }
 
     [[nodiscard]] size_type _get_writable_index(key_type const &_key) const {
-        size_type _idx = _get_hash(_key);
-        return _get_writable_index_impl(_key, _idx);
+        return _get_writable_index_impl(_key, _get_hash(_key));
     }
 
     [[nodiscard]] size_type _get_writable_index(key_type const &_key, size_type _idx) const {
@@ -385,19 +387,15 @@ private:
             resize(default_size);
         } else {
             size_type _new_capacity = detail::next_power_of_two_inclusive(_capacity);
-
             if (_new_capacity < 4096) // make small tables grow really fast
                 _new_capacity = std::min<size_type>(_new_capacity * 8, 8192);
             else
                 _new_capacity *= 2;
-
             resize(_new_capacity);
         }
     }
 
     void _alloc_size(size_type _new_capacity) {
-        if (_new_capacity & (_new_capacity - 1))
-            _new_capacity = detail::next_power_of_two_inclusive(_new_capacity);
         delete[] _is_set;
         delete[] _table;
         _is_set = new bool_type[_new_capacity]{};

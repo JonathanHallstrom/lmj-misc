@@ -122,7 +122,7 @@ int main() {
     {
         // test lmj::hash_table with a custom hash function
         auto hash = [](int x) { return x * x; };
-        lmj::hash_table<int, int, decltype(hash)> m(hash);
+        lmj::hash_table<int, int, decltype(hash)> m;
         for (int i = 0; i < 1024; ++i)
             m[i] = i;
         for (auto &[key, value]: m) {
@@ -141,6 +141,23 @@ int main() {
         }
         assert(m.find(1024) == m.end());
         lmj::print("Test 7 passed!");
+    }
+    {
+        // test lmj::hash_table with different types of keys and values and hash
+        auto hash = [](int x) { return x * x; };
+        auto str = [](int x) { return "to make it a long string " + std::to_string(x); };
+        lmj::hash_table<int, std::string> m1;
+        lmj::hash_table<int, std::string, decltype(hash)> m2{hash};
+        for (int i = 0; i < 1024; ++i)
+            m1[i] = m2[i] = str(i);
+        for (int i = 0; i < 1024; ++i) {
+            assert(m1.find(i) != m1.end());
+            assert(m1.find(i)->first == i);
+            assert(m1.find(i)->second == str(i));
+        }
+        assert(m1 == m2);
+        assert(m1.find(1024) == m1.end());
+        lmj::print("Test 8 passed!");
     }
     lmj::print("All tests passed!");
 }
