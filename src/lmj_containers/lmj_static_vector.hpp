@@ -110,7 +110,7 @@ public:
     template<class...Args>
     constexpr auto &emplace_back(Args &&... _args) {
         assert(_size < _capacity && "out of space in static_vector");
-        _data[_size++] = T(std::forward<Args &&...>(_args...));
+        _data[_size++] = T(std::forward<Args>(_args)...);
         return _data[_size - 1];
     }
 
