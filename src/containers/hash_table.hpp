@@ -334,6 +334,7 @@ private:
     }
 
     [[nodiscard]] size_type _get_hash(key_type const &key) const {
+        return _clamp_size(m_hasher(key));
         const size_type hash = m_hasher(key);
         return _clamp_size(hash ^ (~hash >> 16) ^ (hash << 24));
     }

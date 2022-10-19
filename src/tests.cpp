@@ -1,4 +1,4 @@
-#include "lmj_include_all.hpp"
+#include "include_all.hpp"
 
 #include <cmath>
 

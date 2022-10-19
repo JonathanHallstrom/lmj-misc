@@ -4,7 +4,7 @@
 #include <functional>
 #include <cstdint>
 
-#include "lmj_container_helpers.hpp"
+#include "container_helpers.hpp"
 
 namespace lmj {
 template<class T>
