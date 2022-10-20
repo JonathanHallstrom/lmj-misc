@@ -11,19 +11,41 @@ inline auto print_impl(_iobuf *fptr, floating_point auto x) {
     std::fprintf(fptr, "%Lf", static_cast<long double>(x));
 }
 
-inline auto print_impl(_iobuf *fptr, signed_integral auto x) {
-    if constexpr (std::is_same_v<decltype(x), signed char> || std::is_same_v<decltype(x), char>) {
-        std::fputc(x, fptr);
-    } else {
-        std::fprintf(fptr, "%lld", static_cast<std::int64_t>(x));
-    }
-}
-
 inline auto print_impl(_iobuf *fptr, unsigned_integral auto x) {
     if constexpr (std::is_same_v<decltype(x), unsigned char> || std::is_same_v<decltype(x), char>) {
         std::fputc(x, fptr);
     } else {
-        std::fprintf(fptr, "%llu", static_cast<std::uint64_t>(x));
+        if constexpr (sizeof(x) <= 8) {
+            std::fprintf(fptr, "%llu", static_cast<uint64_t>(x));
+        } else {
+            char buff[(sizeof(x) * 8 * 10 + 2) / 3]{};
+            std::size_t size = 0;
+            do {
+                buff[size++] = (x % 10) + '0';
+                x /= 10;
+            } while (x);
+            while (size--) {
+                std::fputc(buff[size], fptr);
+            }
+        }
+    }
+}
+
+inline auto print_impl(_iobuf *fptr, signed_integral auto x) {
+    if constexpr (std::is_same_v<decltype(x), signed char> || std::is_same_v<decltype(x), char>) {
+        std::fputc(x, fptr);
+    } else {
+        if (x < 0) {
+            std::fputc('-', fptr);
+            if (x == std::numeric_limits<decltype(x)>::min()) {
+                print_impl(fptr,
+                           static_cast<std::make_unsigned_t<decltype(x)>>(std::numeric_limits<decltype(x)>::max()) + 1);
+            } else {
+                print_impl(fptr, static_cast<std::make_unsigned_t<decltype(x)>>(-x));
+            }
+        } else {
+            print_impl(fptr, static_cast<std::make_unsigned_t<decltype(x)>>(x));
+        }
     }
 }
 
@@ -33,28 +55,21 @@ inline auto print_impl(_iobuf *fptr, std::string_view x) {
 }
 
 inline auto print_impl_pretty(_iobuf *fptr, floating_point auto x) {
-    std::fprintf(fptr, "%Lf", static_cast<long double>(x));
-}
-
-inline auto print_impl_pretty(_iobuf *fptr, signed_integral auto x) {
-    if constexpr (std::is_same_v<decltype(x), signed char> || std::is_same_v<decltype(x), char>) {
-        std::fputc(x, fptr);
-    } else {
-        std::fprintf(fptr, "%lld", static_cast<std::int64_t>(x));
-    }
+    print_impl(fptr, x);
 }
 
 inline auto print_impl_pretty(_iobuf *fptr, unsigned_integral auto x) {
-    if constexpr (std::is_same_v<decltype(x), unsigned char> || std::is_same_v<decltype(x), char>) {
-        std::fputc(x, fptr);
-    } else {
-        std::fprintf(fptr, "%llu", static_cast<std::uint64_t>(x));
-    }
+    print_impl(fptr, x);
+}
+
+inline auto print_impl_pretty(_iobuf *fptr, signed_integral auto x) {
+    print_impl(fptr, x);
 }
 
 inline auto print_impl_pretty(_iobuf *fptr, std::string_view x) {
-    for (auto i: x)
-        print_impl_pretty(fptr, i);
+    print_impl(fptr, '"');
+    print_impl(fptr, x);
+    print_impl(fptr, '"');
 }
 
 template<class T, class G>
@@ -90,9 +105,9 @@ auto print_impl_pretty(_iobuf *fptr, T &&x) {
     for (auto &&i: x) {
         if (!first) {
             if constexpr (iterable<decltype(i)> || requires { i.second; i.first; })
-                print_impl_pretty(fptr, ",\n");
+                print_impl(fptr, ",\n");
             else
-                print_impl_pretty(fptr, ", ");
+                print_impl(fptr, ", ");
         }
         first = false;
         print_impl_pretty(fptr, i);
