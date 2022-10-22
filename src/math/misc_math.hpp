@@ -42,8 +42,19 @@ constexpr auto ipow(number auto base, std::uint64_t exp) {
  * @param x
  * @return |x|
  */
-constexpr auto abs(number auto x) {
-    return x > 0 ? x : -x;
+template<class T>
+requires number<T>
+constexpr T abs(T x) {
+    if constexpr (std::is_floating_point_v<T>) {
+        if (std::is_constant_evaluated()) {
+            return x < 0 ? -x : x;
+        } else {
+            ((std::uint8_t *) &x)[sizeof(T) - 1] &= ~0x80;  // clear sign bit
+            return x;
+        }
+    } else {
+        return x < 0 ? -x : x;
+    }
 }
 
 #ifdef __GNUC__
