@@ -49,7 +49,17 @@ constexpr T abs(T x) {
         if (std::is_constant_evaluated()) {
             return x < 0 ? -x : x;
         } else {
-            ((std::uint8_t *) &x)[sizeof(T) - 1] &= ~0x80;  // clear sign bit
+            if constexpr (std::endian::native == std::endian::little) {
+                // clear sign bit
+                ((std::uint8_t *) &x)[sizeof(T) - 1] &= ~0x80;
+            } else if constexpr (std::endian::native == std::endian::big) {
+                // clear sign bit
+                ((std::uint8_t *) &x)[0] &= ~0x80;
+            } else {
+                // wtf is your architecture
+                static_assert(std::endian::native == std::endian::big ||
+                              std::endian::native == std::endian::little);
+            }
             return x;
         }
     } else {
