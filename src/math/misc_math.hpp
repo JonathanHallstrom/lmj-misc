@@ -45,25 +45,22 @@ constexpr auto ipow(number auto base, std::uint64_t exp) {
 template<class T>
 requires number<T>
 constexpr T abs(T x) {
-    if constexpr (std::is_floating_point_v<T>) {
-        if (std::is_constant_evaluated()) {
-            return x < 0 ? -x : x;
-        } else {
-            if constexpr (std::endian::native == std::endian::little) {
-                // clear sign bit
-                ((std::uint8_t *) &x)[sizeof(T) - 1] &= ~0x80;
-            } else if constexpr (std::endian::native == std::endian::big) {
-                // clear sign bit
-                ((std::uint8_t *) &x)[0] &= ~0x80;
-            } else {
-                // wtf is your architecture
-                static_assert(std::endian::native == std::endian::big ||
-                              std::endian::native == std::endian::little);
-            }
-            return x;
-        }
-    } else {
+    if ((std::is_constant_evaluated() && !std::is_floating_point_v<T>) ||
+        (std::is_same_v<T, long double> && sizeof(long double) == 16)) {
         return x < 0 ? -x : x;
+    } else {
+        if constexpr (std::endian::native == std::endian::little) {
+            // clear sign bit
+            ((std::uint8_t *) &x)[sizeof(T) - 1] &= ~0x80;
+        } else if constexpr (std::endian::native == std::endian::big) {
+            // clear sign bit
+            ((std::uint8_t *) &x)[0] &= ~0x80;
+        } else {
+            // wtf is your architecture
+            static_assert(std::endian::native == std::endian::big ||
+                          std::endian::native == std::endian::little);
+        }
+        return x;
     }
 }
 
