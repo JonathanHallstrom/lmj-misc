@@ -17,13 +17,6 @@ int main() {
         lmj::print("Test 1 passed!");
     }
     {
-        assert(lmj::abs(lmj::exp(1000.5l) - std::exp(1000.5l)) < 1e-5);
-        for (int i = 0; i < 10000; ++i)
-            assert(lmj::abs(std::exp(static_cast<long double>(i)) - lmj::exp(i)) /
-                   std::exp(static_cast<long double>(i)) < 1e-15);
-        lmj::print("Test 2 passed!");
-    }
-    {
         // miscellaneous test of lmj::hash_table
         constexpr int NUM_TESTS = 1e3;
         std::unordered_map<int, int> map;
@@ -69,7 +62,7 @@ int main() {
         }
         for (auto &[key, val]: map)
             assert(check[key] == val);
-        lmj::print("Test 3 passed!");
+        lmj::print("Test 2 passed!");
     }
     {
         // test removing elements from lmj::hash_table using std::unordered_map to ensure correctness
@@ -104,7 +97,7 @@ int main() {
 
         assert(map.size() == check.size());
 
-        lmj::print("Test 4 passed!");
+        lmj::print("Test 3 passed!");
     }
     {
         // test copy constructor
@@ -117,7 +110,7 @@ int main() {
         lmj::hash_table<int, int> const m2 = m;
         for (auto &[key, value]: m2)
             assert(key == value);
-        lmj::print("Test 5 passed!");
+        lmj::print("Test 4 passed!");
     }
     {
         // test lmj::hash_table with a custom hash function
@@ -128,7 +121,7 @@ int main() {
         for (auto &[key, value]: m) {
             assert(key == value);
         }
-        lmj::print("Test 6 passed!");
+        lmj::print("Test 5 passed!");
     }
     {
         // test lmj::hash_table find
@@ -140,7 +133,7 @@ int main() {
             assert(m.find(i)->first == i);
         }
         assert(m.find(1024) == m.end());
-        lmj::print("Test 7 passed!");
+        lmj::print("Test 6 passed!");
     }
     {
         // test lmj::hash_table with different types of keys and values and hash
@@ -157,7 +150,7 @@ int main() {
         }
         assert(m1 == m2);
         assert(m1.find(1024) == m1.end());
-        lmj::print("Test 8 passed!");
+        lmj::print("Test 7 passed!");
     }
     lmj::print("All tests passed!");
 }
