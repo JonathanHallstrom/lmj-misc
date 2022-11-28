@@ -22,40 +22,38 @@ int main() {
         std::unordered_map<int, int> map;
         lmj::hash_table<int, int> check;
         for (int i = 0; i < NUM_TESTS; ++i) {
-            int key, value;
-            key = i / 2;
-            value = i;
+            int key = i / 2, value = i;
             if (i > NUM_TESTS / 32)
                 value = -i;
             map[key] = value;
             check[key] = value;
         }
         for (int i = 0; i < NUM_TESTS; ++i) {
-            int key = lmj::rand<int>();
+            const int key = lmj::rand<int>();
             map.erase(key);
             check.erase(key);
         }
         for (int i = 0; i < NUM_TESTS; ++i) {
-            int key = lmj::rand<int>();
-            int val = lmj::rand<int>();
+            const int key = lmj::rand<int>();
+            const int val = lmj::rand<int>();
             map[key] = val;
             check[key] = val;
         }
         for (int i = 0; i < NUM_TESTS; ++i) {
-            int key = lmj::rand<int>();
+            const int key = lmj::rand<int>();
             map.erase(key);
             check.erase(key);
         }
         for (int i = 0; i < NUM_TESTS; ++i) {
-            int key = lmj::rand<int>();
-            int val = lmj::rand<int>();
+            const int key = lmj::rand<int>();
+            const int val = lmj::rand<int>();
             map[key] = val;
             check[key] = val;
         }
         for (int i = 0; i < NUM_TESTS; ++i) {
-            int key = lmj::rand<int>();
+            const int key = lmj::rand<int>();
             for (int j = 0; j < 100; ++j) {
-                int val = lmj::rand<int>();
+                const int val = lmj::rand<int>();
                 map[key] = val;
                 check[key] = val;
             }
