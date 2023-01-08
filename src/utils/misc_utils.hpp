@@ -126,6 +126,30 @@ std::remove_cvref_t<decltype(std::begin(iterable), std::end(iterable), std::decl
     return result;
 }
 
+template<class T, std::size_t sz, class Less = std::less<>>
+constexpr T min(T const (&arr)[sz]) {
+    static_assert(sz >= 1);
+    T result = arr[0];
+    for (std::size_t i = 1; i < sz; ++i) {
+        if (Less{}(arr[i], result)) {
+            result = arr[i];
+        }
+    }
+    return result;
+}
+
+template<class T, std::size_t sz, class Greater = std::greater<>>
+constexpr T max(T const (&arr)[sz]) {
+    static_assert(sz >= 1);
+    T result = arr[0];
+    for (std::size_t i = 1; i < sz; ++i) {
+        if (Greater{}(arr[i], result)) {
+            result = arr[i];
+        }
+    }
+    return result;
+}
+
 // tests (very incomplete)
 
 static_assert(min(1, 2) == 1);

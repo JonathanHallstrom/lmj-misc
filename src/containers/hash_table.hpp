@@ -306,9 +306,9 @@ public:
     }
 
     [[nodiscard]] size_type _clamp_size(size_type idx) const {
-        if (m_capacity & (m_capacity - 1))
+        if (m_capacity & (m_capacity - 1)) [[unlikely]]
             return idx % m_capacity;
-        else
+        else [[likely]]
             return idx & (m_capacity - 1);
     }
 
@@ -354,9 +354,9 @@ private:
     }
 
     [[nodiscard]] size_type _new_idx(size_type const idx) const {
-        if (idx + 1 < m_capacity)
+        if (idx + 1 < m_capacity) [[likely]]
             return idx + 1;
-        else
+        else [[unlikely]]
             return 0;
     }
 
