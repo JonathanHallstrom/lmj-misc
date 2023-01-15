@@ -21,7 +21,7 @@ using first_type_t = typename first_type<Args...>::type;
 
 template<class... Args>
 constexpr auto all_same_types() {
-    return !sizeof...(Args) || (... && std::is_same_v<Args, first_type_t<Args...>>);
+    return !sizeof...(Args) || (std::is_same_v<Args, first_type_t<Args...>> && ...);
 }
 
 template<class T, std::size_t _capacity>
@@ -64,7 +64,7 @@ public:
         assert(other.m_size <= _capacity);
         m_size = other.m_size;
         for (size_type i = 0; i < m_size; ++i)
-            m_data[i] = other.m_data[i];
+            m_data[i] = std::move(other.m_data[i]);
         return *this;
     }
 
@@ -115,6 +115,7 @@ public:
     }
 
     [[nodiscard]] constexpr auto &operator[](size_type idx) {
+        assert(idx < m_size && "no element to return");
         return m_data[idx];
     }
 
@@ -154,8 +155,8 @@ public:
         m_size = 0;
     }
 
-    [[nodiscard]] constexpr bool empty() {
-        return !m_size;
+    [[nodiscard]] constexpr bool empty() const {
+        return m_size == 0;
     }
 
     [[nodiscard]] constexpr auto begin() const {
@@ -199,11 +200,11 @@ public:
     }
 
     [[nodiscard]] constexpr auto crbegin() const {
-        return std::reverse_iterator{end()};
+        return std::reverse_iterator{cend()};
     }
 
     [[nodiscard]] constexpr auto crend() const {
-        return std::reverse_iterator{begin()};
+        return std::reverse_iterator{cbegin()};
     }
 
     template<std::size_t other_capacity>
@@ -217,13 +218,14 @@ public:
     }
 
     template<class G>
-    constexpr auto operator!=(G const &other) {
+    constexpr auto operator!=(G const &other) const {
         return !(*this == other);
     }
 };
 
 template<class... Args>
 constexpr auto make_static_vector(Args &&... args) {
+    static_assert(all_same_types<std::remove_cvref_t<Args>...>());
     return static_vector<std::remove_cvref_t<first_type_t<Args...>>, sizeof...(Args)>{std::forward<Args>(args)...};
 }
 
@@ -231,23 +233,18 @@ constexpr auto make_static_vector(Args &&... args) {
 static_assert(std::is_same_v<static_vector<int, 3>, decltype(make_static_vector(1, 2, 3))>);
 static_assert([] {
     static_vector<int, 1> v;
-    return v.push_back(1) == 1;
-}());
-static_assert([] {
-    static_vector<int, 1> a;
-    a.push_back(1);
-    static_vector<int, 2> b{1};
-    return a == b;
+    v.push_back(1);
+    return v[0] == 1;
 }());
 static_assert([] {
     return static_vector<int, 2>{1} == static_vector<int, 1>{1};
 }());
 static_assert([] {
-    static_vector<int, 3> v = {1, 2, 3};
-    std::array<int, 3> arr1{v[2], v[1], v[0]}, arr2{};
-    auto it = v.rbegin();
-    for (auto &i: arr2)
-        i = *it++;
+    const static_vector<int, 3> v = {1, 2, 3};
+
+    std::array<int, 3> arr1{}, arr2{};
+    std::copy(v.begin(), v.end(), arr1.rbegin());
+    std::copy(v.rbegin(), v.rend(), arr2.begin());
     return arr1 == arr2;
 }());
 }
