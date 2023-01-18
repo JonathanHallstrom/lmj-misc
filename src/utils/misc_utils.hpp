@@ -5,6 +5,21 @@
 #include "../containers/containers.hpp"
 
 namespace lmj {
+template<std::size_t n, class... T>
+constexpr decltype(auto) get_nth(T &&... xs) {
+    return std::get<n>(std::tuple<T &&...>{xs...});
+}
+
+template<class... T>
+constexpr decltype(auto) get_first(T &&... xs) {
+    return get_nth<0>(xs...);
+}
+
+template<class... T>
+constexpr decltype(auto) get_last(T &&... xs) {
+    return get_nth<sizeof...(T) - 1>(xs...);
+}
+
 constexpr std::size_t compute_hash(char const *s, std::size_t size) { // FNV hash
     constexpr auto IS_64BIT = sizeof(std::size_t) == 8;
     std::size_t result = IS_64BIT ? 14695981039346656037ULL : 2166136261U;
