@@ -336,14 +336,14 @@ public:
     using pointer = pair_type *;
     using reference = pair_type &;
 
-    hash_table_t const *m_table_ptr = nullptr;
+    hash_table_t *m_table_ptr = nullptr;
     size_type m_index = 0;
 
     constexpr static_hash_table_iterator() = default;
 
     constexpr static_hash_table_iterator(static_hash_table_iterator const &) = default;
 
-    constexpr static_hash_table_iterator(static_hash_table<key_t, value_t, _capacity, hash_t> const *ptr,
+    constexpr static_hash_table_iterator(static_hash_table<key_t, value_t, _capacity, hash_t> *ptr,
                                          size_type idx) : m_table_ptr{ptr}, m_index{idx} {}
 
     constexpr static_hash_table_iterator &operator=(static_hash_table_iterator const &) = default;
