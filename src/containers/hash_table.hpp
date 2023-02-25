@@ -505,7 +505,6 @@ public:
 
 template<class key_t, class value_t, class hash_t = std::hash<key_t>>
 class hash_table_const_iterator {
-    using hash_table_t = hash_table<key_t, value_t, hash_t>;
     enum active_enum {
         INACTIVE = 0,
         ACTIVE = 1,
@@ -513,15 +512,15 @@ class hash_table_const_iterator {
     };
 public:
     using pair_type = std::pair<key_t const, value_t>;
-    using size_type = hash_table_t::size_type;
+    using size_type = std::size_t;
 
     using iterator_category = std::bidirectional_iterator_tag;
-    using difference_type = hash_table_t::difference_type;
+    using difference_type = std::make_signed_t<size_type>;
     using value_type = pair_type const;
     using pointer = pair_type const *;
     using reference = pair_type const &;
 
-    hash_table_t const *m_table_ptr = nullptr;
+    hash_table<key_t, value_t, hash_t> const *m_table_ptr = nullptr;
     size_type m_index = 0;
 
     hash_table_const_iterator() = default;
