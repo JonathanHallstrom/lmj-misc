@@ -344,7 +344,10 @@ public:
 
         iterator i1 = begin() + (first - begin()), i2 = begin() + (last - begin());
         if (i1 != first || i2 != last)
-            __builtin_unreachable();
+#if __has_builtin(__builtin_unreachable)
+            __builtin_unreachable()
+#endif
+            ;
 
         while (i2 != end())
             *i1++ = *i2++;
