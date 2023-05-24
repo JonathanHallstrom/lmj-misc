@@ -69,6 +69,8 @@ public:
 
     template<class T = std::size_t, typename = typename std::enable_if_t<std::is_integral_v<T>, void>>
     constexpr T randint(T lo, T hi) {
+        if (lo == 0 && hi == 0xFFFFFFFFFFFFFFFF)
+            return compute();
         const std::uint64_t range = hi - lo + 1;
         const std::uint64_t acceptable_range_values = 0xFFFFFFFFFFFFFFFF / range * range;
         std::uint64_t res = compute();
