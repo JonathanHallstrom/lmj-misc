@@ -105,6 +105,11 @@ inline auto rand() -> std::enable_if_t<std::is_integral_v<T>, T> {
     return detail::gen.gen<T>();
 }
 
+template<class T = unsigned long long>
+inline auto randint(T lo, T hi) -> std::enable_if_t<std::is_integral_v<T>, T> {
+    return detail::gen.randint<T>(lo, hi);
+}
+
 constexpr auto random_shuffle(auto &random_access_container) {
     const auto n = random_access_container.size();
     using T = std::remove_cvref_t<decltype(n)>;
