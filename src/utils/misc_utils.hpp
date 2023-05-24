@@ -35,23 +35,22 @@ constexpr std::size_t seed_from_str(std::string_view v) {
 }
 
 class constexpr_rand_generator { // based on xorshift random number generator by George Marsaglia
-    unsigned long long x, y, z;
+    std::uint64_t x, y, z;
 
 public:
     constexpr explicit constexpr_rand_generator(std::size_t seed = seed_from_str(__TIME__)) : x{}, y{}, z{} {
         set_seed(seed);
     }
 
-    constexpr void set_seed(unsigned long long seed) {
-        x = 230849599040350201 ^ static_cast<unsigned long long>(seed);
-        y = 965937400815267857 ^ static_cast<unsigned long long>(seed);
-        z = 895234450760720011 ^ static_cast<unsigned long long>(seed);
+    constexpr void set_seed(std::uint64_t seed) {
+        x = 230849599040350201 ^ static_cast<std::uint64_t>(seed);
+        y = 965937400815267857 ^ static_cast<std::uint64_t>(seed);
+        z = 895234450760720011 ^ static_cast<std::uint64_t>(seed);
         for (int i = 0; i < 128; ++i)
             gen<int>(); // discard first 128 values
     }
 
-    template<class T = std::size_t, typename = typename std::enable_if_t<std::is_integral_v<T>, void>>
-    constexpr T gen() {
+    constexpr std::uint64_t compute() {
         x ^= x << 16;
         x ^= x >> 5;
         x ^= x << 1;
@@ -60,9 +59,24 @@ public:
         x = y;
         y = z;
         z = t ^ x ^ y;
-
-        return static_cast<T>(z);
+        return z;
     }
+
+    template<class T = std::size_t, typename = typename std::enable_if_t<std::is_integral_v<T>, void>>
+    constexpr T gen() {
+        return static_cast<T>(compute());
+    }
+
+    template<class T = std::size_t, typename = typename std::enable_if_t<std::is_integral_v<T>, void>>
+    constexpr T randint(T lo, T hi) {
+        const std::uint64_t range = hi - lo + 1;
+        const std::uint64_t acceptable_range_values = 0xFFFFFFFFFFFFFFFF / range * range;
+        std::uint64_t res = compute();
+        while (res >= acceptable_range_values)
+            res = compute();
+        return static_cast<T>(lo + res % range);
+    }
+
 
     template<class T = std::size_t, typename = typename std::enable_if_t<std::is_integral_v<T>, void>>
     constexpr auto operator()() {
