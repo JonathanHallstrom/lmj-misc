@@ -74,11 +74,16 @@ public:
         const std::uint64_t range = hi - lo + 1;
         const std::uint64_t acceptable_range_values = 0xFFFFFFFFFFFFFFFF / range * range;
         std::uint64_t res = compute();
-        if (res >= acceptable_range_values)
-            res = compute();
-        if (res >= acceptable_range_values)
-            res = compute();
+#if defined(__clang__) || defined(__GNUC__)
+#define UNLIKELY(x) __builtin_expect(x, 0)
+#else
+#define UNLIKELY(x) x
+#endif
+        if (UNLIKELY(res >= acceptable_range_values))
+            while (res >= acceptable_range_values)
+                res = compute();
         return static_cast<T>(lo + res % range);
+#undef UNLIKELY
     }
 
 
