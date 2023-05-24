@@ -72,7 +72,9 @@ public:
         const std::uint64_t range = hi - lo + 1;
         const std::uint64_t acceptable_range_values = 0xFFFFFFFFFFFFFFFF / range * range;
         std::uint64_t res = compute();
-        while (res >= acceptable_range_values)
+        if (res >= acceptable_range_values)
+            res = compute();
+        if (res >= acceptable_range_values)
             res = compute();
         return static_cast<T>(lo + res % range);
     }
