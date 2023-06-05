@@ -5,6 +5,7 @@
 #include <functional>
 #include <cassert>
 #include <cstdint>
+#include <limits>
 
 namespace lmj {
 namespace detail {
@@ -94,16 +95,17 @@ public:
     hash_table &operator=(hash_table const &other) {
         if ((this == &other) | (m_table == other.m_table) | (m_is_set == other.m_is_set))
             return *this;
-        _alloc_size(other.m_capacity);
+        if (other.m_elem_count * 2 >= m_capacity)
+            _alloc_size(other.m_capacity);
+        else
+            clear();
         for (size_type i = 0; i < other.m_capacity; ++i) {
             if (other.m_is_set[i] == ACTIVE) {
-                new(&m_table[i]) pair_type{other.m_table[i]};
-                m_is_set[i] = other.m_is_set[i];
+                _emplace_unchecked(other.m_table[i]);
             }
         }
         m_tomb_count = 0;
         m_elem_count = other.m_elem_count;
-        m_capacity = other.m_capacity;
         if constexpr (std::is_copy_assignable_v<hash_type>)
             m_hasher = other.m_hasher;
         return *this;
@@ -234,18 +236,7 @@ public:
     value_tp &emplace(Args &&... args) {
         if (_should_grow())
             _grow();
-        static_assert(sizeof...(args));
-        auto p = pair_type{std::forward<Args>(args)...};
-        const size_type hash = _get_hash(p.first);
-        size_type idx = _get_index_read(p.first, hash);
-        if (m_is_set[idx] == ACTIVE && m_table[idx].first == p.first)
-            return m_table[idx].second;
-        idx = _get_writable_index(p.first, hash);
-        ++m_elem_count;
-        m_tomb_count -= m_is_set[idx] == TOMBSTONE;
-        m_is_set[idx] = ACTIVE;
-        new(m_table + idx) pair_type{std::move(p)};
-        return m_table[idx].second;
+        return _emplace_unchecked(std::forward<Args>(args)...);
     }
 
     /**
@@ -345,6 +336,22 @@ public:
     }
 
 private:
+    template<class... Args>
+    value_tp &_emplace_unchecked(Args &&... args) {
+        static_assert(sizeof...(args));
+        auto p = pair_type{std::forward<Args>(args)...};
+        const size_type hash = _get_hash(p.first);
+        size_type idx = _get_index_read(p.first, hash);
+        if (m_is_set[idx] == ACTIVE && m_table[idx].first == p.first)
+            return m_table[idx].second;
+        idx = _get_writable_index(p.first, hash);
+        ++m_elem_count;
+        m_tomb_count -= m_is_set[idx] == TOMBSTONE;
+        m_is_set[idx] = ACTIVE;
+        new(m_table + idx) pair_type{std::move(p)};
+        return m_table[idx].second;
+    }
+
     [[nodiscard]] size_type _get_start_index() const {
         if (!m_capacity)
             return 0;
@@ -555,7 +562,7 @@ public:
 
     hash_table_const_iterator operator--(int) {
         auto copy = *this;
-        ++*this;
+        --*this;
         return copy;
     }
 
@@ -577,7 +584,4 @@ public:
         return m_index == other.m_index || m_table_ptr == other.m_table_ptr;
     }
 };
-
-static_assert(std::bidirectional_iterator<hash_table_iterator<int, int>>);
-static_assert(std::bidirectional_iterator<hash_table_const_iterator<int, int>>);
 }

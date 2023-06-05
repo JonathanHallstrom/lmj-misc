@@ -33,22 +33,11 @@ static_assert(Container<lmj::static_vector<int, 1>>);
 static_assert(Container<lmj::static_hash_table<int, int, 1>>);
 static_assert(Container<lmj::hash_table<int, int>>);
 
-int main(int argc, char *argv[]) {
+int main() {
     std::atomic<std::int64_t> idx = 1;
     std::vector<std::future<void>> test_futures;
     auto mode = std::launch::async;
     bool print_times = false;
-    std::set<std::string_view> command_line_arguments;
-    for (int i = 0; i < argc; ++i)
-        command_line_arguments.emplace(argv[i]);
-    if (command_line_arguments.count("--time")) {
-        print_times = true;
-        mode = std::launch::deferred;
-        if (command_line_arguments.count("--async-tests") || command_line_arguments.count("--async-tests=1"))
-            mode = std::launch::async;
-    }
-    if (command_line_arguments.count("--sync-tests") || command_line_arguments.count("--async-tests=0"))
-        mode = std::launch::deferred;
     lmj::timer t{print_times};
     const auto thread_count = static_cast<std::int64_t>(std::thread::hardware_concurrency());
     auto register_test = [&, test_idx = 1](auto &&test) mutable {
@@ -82,49 +71,72 @@ int main(int argc, char *argv[]) {
         assert(sum == n * n / 4);
     });
     register_test([] {
-        constexpr int N = 1 << 11;
+        constexpr int N = 1 << 20;
         // miscellaneous test of lmj::hash_table ("do random bullsh*t and see if the standard version ends up the same")
-        std::unordered_map<int, int> map;
-        lmj::hash_table<int, int> check;
+        std::unordered_map<int, int> map1, map2;
+        lmj::hash_table<int, int> check1, check2;
         for (int i = 0; i < N; ++i) {
-            int key = i / 2, value = i;
-            if (i > N / 32)
-                value = -i;
-            map[key] = value;
-            check[key] = value;
-        }
-        for (int i = 0; i < N; ++i) {
-            const int key = lmj::rand<int>();
-            map.erase(key);
-            check.erase(key);
-        }
-        for (int i = 0; i < N; ++i) {
-            const int key = lmj::rand<int>();
-            const int val = lmj::rand<int>();
-            map[key] = val;
-            check[key] = val;
-        }
-        for (int i = 0; i < N; ++i) {
-            const int key = lmj::rand<int>();
-            map.erase(key);
-            check.erase(key);
-        }
-        for (int i = 0; i < N; ++i) {
-            const int key = lmj::rand<int>();
-            const int val = lmj::rand<int>();
-            map[key] = val;
-            check[key] = val;
-        }
-        for (int i = 0; i < N; ++i) {
-            const int key = lmj::rand<int>();
-            for (int j = 0; j < 100; ++j) {
-                const int val = lmj::rand<int>();
-                map[key] = val;
-                check[key] = val;
+            {
+                const int key = lmj::randint(0, 1 << 12);
+                const int val = lmj::randint(0, 1 << 12);
+                switch (lmj::randint(0, 9)) {
+                    case 0:
+                        map1[key] = val;
+                        check1[key] = val;
+                        break;
+                    case 1:
+                        map1.erase(key);
+                        check1.erase(key);
+                        break;
+
+                    case 2:
+                        map2[key] = val;
+                        check2[key] = val;
+                        break;
+                    case 3:
+                        map2.erase(key);
+                        check2.erase(key);
+                        break;
+
+                    case 4:
+                        map1 = map2;
+                        check1 = check2;
+                        break;
+                    case 5:
+                        map2 = map1;
+                        check2 = check1;
+                        break;
+
+                    case 6:
+                        if (!(key & 1023)) {
+                            map2 = std::move(map1);
+                            check2 = std::move(check1);
+                            map1 = {};
+                            check1 = {};
+                        }
+                        break;
+                    case 7:
+                        if (!(key & 1023)) {
+                            map1 = std::move(map2);
+                            check1 = std::move(check2);
+                            map2 = {};
+                            check2 = {};
+                        }
+                        break;
+                    case 8:
+                        std::swap(map1, map2);
+                        std::swap(check1, check2);
+                        break;
+                }
             }
+
+            assert(map1.size() == check1.size());
+            assert(map2.size() == check2.size());
+            for (const auto &[key, val]: map1)
+                assert(check1.at(key) == val);
+            for (const auto &[key, val]: map2)
+                assert(check2.at(key) == val);
         }
-        for ([[maybe_unused]] auto &[key, val]: map)
-            assert(check[key] == val);
     });
     register_test([] {
         constexpr int n = 1 << 18;
@@ -146,7 +158,7 @@ int main(int argc, char *argv[]) {
 
         assert(map.size() == check.size());
 
-        for ([[maybe_unused]] auto &[key, val]: check)
+        for (auto &[key, val]: check)
             assert(map.at(key) == val);
 
         for (int i = 0; i < n; i += 2) {
@@ -165,11 +177,11 @@ int main(int argc, char *argv[]) {
         lmj::hash_table<int, int> m;
         for (int i = 0; i < n; ++i)
             m[i] = i;
-        for ([[maybe_unused]] auto &[key, value]: m) {
+        for (auto &[key, value]: m) {
             assert(key == value);
         }
         lmj::hash_table<int, int> const m2 = m;
-        for ([[maybe_unused]] auto &[key, value]: m2)
+        for (auto &[key, value]: m2)
             assert(key == value);
     });
     register_test([] {
@@ -179,7 +191,7 @@ int main(int argc, char *argv[]) {
         lmj::hash_table<int, int, decltype(hash)> m;
         for (int i = 0; i < n; ++i)
             m[i] = i;
-        for ([[maybe_unused]] auto &[key, value]: m) {
+        for (auto &[key, value]: m) {
             assert(key == value);
         }
     });
