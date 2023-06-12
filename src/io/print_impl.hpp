@@ -84,4 +84,4 @@ constexpr void print_impl(print_stream auto &out, T &&x) {
         print_impl(out, i);
     }
 }
-}
+} // namespace lmj

@@ -1,15 +1,15 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <utility>
-#include <array>
 
-#include "../utils/utils.hpp"
 #include "../containers/containers.hpp"
+#include "../utils/utils.hpp"
 
 namespace lmj::lagrange {
 namespace detail {
-template<std::size_t length, class...Args>
+template<std::size_t length, class... Args>
 constexpr auto format_helper(static_vector<point, length> &arr, long double a, long double b, Args &&...pack) {
     arr.push_back(point{a, b});
     if constexpr (sizeof...(pack)) {
@@ -27,7 +27,7 @@ constexpr auto data_format(Args &&...pack) {
     std::copy(v.begin(), v.end(), res.begin());
     return res;
 }
-}
+} // namespace detail
 
 template<std::size_t length>
 constexpr long double interpolate(long double x, std::array<point, length> const &points) {
@@ -50,7 +50,7 @@ constexpr long double interpolate(long double x, std::array<point, length> const
  * @param points
  * @return
  */
-constexpr auto get_function(numbers auto &&... points) {
+constexpr auto get_function(numbers auto &&...points) {
     return [=](long double x) { return interpolate(x, detail::data_format(points...)); };
 }
 
@@ -59,4 +59,4 @@ static_assert(lmj::lagrange::get_function(0, 0, 0.5, 0.25, 1, 1)(1) == 1); // y 
 static_assert(lmj::lagrange::get_function(0, 0, 0.5, 0.25, 1, 1)(2) == 4); // y = x^2
 static_assert(lmj::lagrange::get_function(0, 0, 0.5, 0.25, 1, 1)(3) == 9); // y = x^2
 static_assert(lmj::lagrange::get_function(0, 0, 2, 3, 5, 20)(3) == 7);
-}
+} // namespace lmj::lagrange

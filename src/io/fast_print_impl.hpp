@@ -1,10 +1,10 @@
 #pragma once
 
-#include <cstdio>
-#include <cstdint>
-#include <cinttypes>
-#include "../utils/utils.hpp"
 #include "../utils/concepts.hpp"
+#include "../utils/utils.hpp"
+#include <cinttypes>
+#include <cstdint>
+#include <cstdio>
 
 namespace lmj::fast_print {
 
@@ -129,4 +129,4 @@ auto print_impl_pretty(FILE *fptr, std::pair<T, G> const &x) {
 }
 
 
-}
+} // namespace lmj::fast_print

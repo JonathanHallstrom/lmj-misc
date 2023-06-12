@@ -1,8 +1,8 @@
 #pragma once
 
-#include <utility>
-#include <functional>
 #include <cstdint>
+#include <functional>
+#include <utility>
 
 #include "container_helpers.hpp"
 
@@ -27,6 +27,7 @@ class static_hash_table {
         ACTIVE = 1,
         TOMBSTONE = 2,
     };
+
 public:
     static_assert(_capacity && "a table with a capacity of zero is not allowed");
     using pair_type = std::pair<key_tp, value_tp>;
@@ -35,8 +36,9 @@ public:
     using const_reference = const value_type &;
     using size_type = decltype(detail::needed_uint<_capacity>());
     using difference_type = std::make_signed_t<decltype(detail::needed_uint<
-            _capacity < std::numeric_limits<std::size_t>::max() / 2 ? _capacity * 2 + 1
-                                                                    : std::numeric_limits<std::size_t>::max()>())>;
+            _capacity < std::numeric_limits<std::size_t>::max() / 2
+            ? _capacity * 2 + 1
+            : std::numeric_limits<std::size_t>::max()>())>;
     using bool_type = std::uint8_t;
     using iterator = static_hash_table_iterator<key_tp, value_tp, _capacity, hash_type>;
     using const_iterator = static_hash_table_const_iterator<key_tp, value_tp, _capacity, hash_type>;
@@ -109,8 +111,7 @@ public:
         if (!m_elem_count)
             return emplace(key, value_tp{});
         const size_type idx = _get_index_read(key);
-        return (m_is_set[idx] == ACTIVE && m_table[idx].first == key) ?
-               m_table[idx].second : emplace(key, value_tp{});
+        return (m_is_set[idx] == ACTIVE && m_table[idx].first == key) ? m_table[idx].second : emplace(key, value_tp{});
     }
 
     /**
@@ -174,7 +175,7 @@ public:
      * @return  reference to newly constructed value
      */
     template<class... Args>
-    constexpr value_tp &emplace(Args &&... pack) {
+    constexpr value_tp &emplace(Args &&...pack) {
         static_assert(sizeof...(pack));
         assert(m_elem_count < _capacity);
         auto p = pair_type{std::forward<Args>(pack)...};
@@ -273,7 +274,6 @@ private:
     [[nodiscard]] constexpr size_type _get_hash(key_tp const &key) const {
         const size_type hash = m_hasher(key);
         return _clamp_size(hash ^ (~hash >> 16) ^ (hash << 24));
-
     }
 
     [[nodiscard]] constexpr size_type _new_idx(size_type const idx) const {
@@ -326,6 +326,7 @@ class static_hash_table_iterator {
         ACTIVE = 1,
         TOMBSTONE = 2,
     };
+
 public:
     using pair_type = std::pair<key_t, value_t>;
     using size_type = hash_table_t::size_type;
@@ -401,6 +402,7 @@ class static_hash_table_const_iterator {
         ACTIVE = 1,
         TOMBSTONE = 2,
     };
+
 public:
     using pair_type = std::pair<key_t, value_t>;
     using size_type = hash_table_t::size_type;
@@ -419,8 +421,8 @@ public:
     constexpr static_hash_table_const_iterator(static_hash_table_const_iterator const &) = default;
 
     constexpr static_hash_table_const_iterator(
-            static_hash_table_iterator<key_t, value_t, _capacity, hash_t> const &other) :
-            m_table_ptr{other.m_table_ptr}, m_index{other.m_index} {}
+            static_hash_table_iterator<key_t, value_t, _capacity, hash_t> const &other) : m_table_ptr{
+            other.m_table_ptr}, m_index{other.m_index} {}
 
     constexpr static_hash_table_const_iterator(
             static_hash_table<key_t, value_t, _capacity, hash_t> const *ptr,
@@ -529,4 +531,4 @@ static_assert([] {
     }();
     return m.at(1) == 1;
 }());
-}
+} // namespace lmj

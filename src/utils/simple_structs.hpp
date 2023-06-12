@@ -15,16 +15,16 @@ public:
     constexpr recursive_lambda(G &&l) : m_lambda{std::forward<G>(l)} {}
 
     template<class... Args>
-    constexpr decltype(auto) operator()(Args &&... args) {
+    constexpr decltype(auto) operator()(Args &&...args) {
         return m_lambda(*this, std::forward<Args>(args)...);
     }
 
     template<class... Args>
-    constexpr decltype(auto) operator()(Args &&... args) const {
+    constexpr decltype(auto) operator()(Args &&...args) const {
         return m_lambda(*this, std::forward<Args>(args)...);
     }
 };
 
 template<class G>
 recursive_lambda(G) -> recursive_lambda<std::decay_t<G>>;
-}
+} // namespace lmj

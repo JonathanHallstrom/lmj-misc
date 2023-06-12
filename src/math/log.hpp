@@ -1,8 +1,8 @@
 #pragma once
 
-#include <limits>
 #include "misc_math.hpp"
 #include "newton_raphson.hpp"
+#include <limits>
 
 namespace lmj {
 namespace detail {
@@ -19,7 +19,7 @@ constexpr auto log_impl(long double n) {
     auto low = approximation{1.0l, 0.0l};
 
     constexpr long double thousand_exp = 2.716923932235892457383l; // (not) coincidentally close to e
-    while (low.value * thousand_exp < n) // speed up finding first value less than n
+    while (low.value * thousand_exp < n)                           // speed up finding first value less than n
         low.value *= thousand_exp, low.exponent += 1000.0l;
 
     constexpr long double hundred_exp = 1.105115697720767968379l;
@@ -38,11 +38,11 @@ constexpr auto log_impl(long double n) {
     if (high.value == n) // if an exact value is found, return early
         return high.exponent * ln_1001;
 
-    auto const t = (high.value - n) / (high.value - low.value); // for linear interpolation below
+    auto const t = (high.value - n) / (high.value - low.value);               // for linear interpolation below
     auto const approx = (high.exponent - (high.exponent - low.exponent) * t); // approximately ln(n) / ln(1.001)
     return approx * ln_1001;
 }
-}
+} // namespace detail
 
 constexpr long double log(long double x) {
     if (x < 0) // if x < 0 ln(x) is undefined
@@ -66,4 +66,4 @@ constexpr long double log10(long double x) {
 // tests
 
 static_assert(lmj::abs(lmj::log(2) + lmj::log(3) - lmj::log(2 * 3)) < 1e-5);
-}
+} // namespace lmj

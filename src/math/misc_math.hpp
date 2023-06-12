@@ -1,16 +1,16 @@
 #pragma once
 
+#include "../containers/container_helpers.hpp"
 #include "../utils/concepts.hpp"
 #include "newton_raphson.hpp"
-#include "../containers/container_helpers.hpp"
 
+#include <cassert>
 #include <cmath>
 #include <ranges>
-#include <cassert>
 
 namespace lmj {
 
-#if defined(__GNUC__) || defined(__clang_major__) || defined (__clang_minor__)
+#if defined(__GNUC__) || defined(__clang_major__) || defined(__clang_minor__)
 using biggest_float = __float128;
 #else
 using biggest_float = long double;
@@ -95,8 +95,7 @@ constexpr long double exp(long double x) {
         const auto whole_part = static_cast<unsigned>(x);
         const auto fractional_part = x - whole_part;
         return static_cast<long double>(
-                _exp_small(fractional_part) * ipow(e<biggest_float>, whole_part)
-        );
+                _exp_small(fractional_part) * ipow(e<biggest_float>, whole_part));
     } else {
         return std::exp(x);
     }
@@ -289,7 +288,6 @@ constexpr std::pair<std::uint64_t, std::uint64_t> farey(long double x, std::uint
     } else {
         return {a, b};
     }
-
 }
 
 // tests
@@ -319,4 +317,4 @@ static_assert([] {
     }
     return true;
 }());
-}
+} // namespace lmj

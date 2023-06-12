@@ -27,4 +27,4 @@ static_assert(sizeof(needed_uint<std::numeric_limits<std::uint8_t>::max()>()) ==
 static_assert(sizeof(needed_uint<std::numeric_limits<std::uint16_t>::max()>()) == 2);
 static_assert(sizeof(needed_uint<std::numeric_limits<std::uint32_t>::max()>()) == 4);
 static_assert(sizeof(needed_uint<std::numeric_limits<std::uint64_t>::max()>()) == 8);
-}
+} // namespace lmj::detail

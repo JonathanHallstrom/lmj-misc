@@ -6,8 +6,7 @@
 #include <set>
 
 template<class ContainerType>
-concept Container = requires(ContainerType a, const ContainerType b)
-{
+concept Container = requires(ContainerType a, const ContainerType b) {
     requires std::regular<ContainerType>;
     requires std::swappable<ContainerType>;
     requires std::destructible<typename ContainerType::value_type>;

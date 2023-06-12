@@ -1,8 +1,8 @@
 #pragma once
 
-#include <iostream>
-#include "print_impl.hpp"
 #include "fast_print_impl.hpp"
+#include "print_impl.hpp"
+#include <iostream>
 
 #ifndef USE_FAST_IO
 #define USE_FAST_IO 1
@@ -34,4 +34,4 @@ inline void print(auto &&x, auto &&...pack) {
     print(pack...);
 }
 #endif
-}
+} // namespace lmj

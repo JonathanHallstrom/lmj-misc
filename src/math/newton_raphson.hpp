@@ -6,7 +6,7 @@
 
 namespace lmj {
 template<class Func, class T = long double>
-requires number<T>
+    requires number<T>
 constexpr auto derivative(Func &&f, T h = 1e-5l) {
     return [=](auto x) {
         return (f(x + h) - f(x - h)) / (2 * h);
@@ -29,4 +29,4 @@ constexpr T newtons_method(Func &&f, T x = 2.0l, T epsilon = 1e-3l) {
     }
     return x;
 }
-}
+} // namespace lmj

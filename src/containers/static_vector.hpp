@@ -1,12 +1,12 @@
 #pragma once
 
-#include <numeric>
-#include <cassert>
-#include <limits>
-#include <array>
-#include <cstdint>
-#include <vector>
 #include "container_helpers.hpp"
+#include <array>
+#include <cassert>
+#include <cstdint>
+#include <limits>
+#include <numeric>
+#include <vector>
 
 namespace lmj {
 template<class... Args>
@@ -33,15 +33,18 @@ class static_vector_iterator {
 public:
     using size_type = decltype(detail::needed_uint<_capacity>());
     using difference_type = std::make_signed_t<decltype(detail::needed_uint<
-            _capacity < std::numeric_limits<std::uint64_t>::max() / 2 ? _capacity * 2 + 1
-                                                                      : std::numeric_limits<std::uint64_t>::max()>())>;
+            _capacity < std::numeric_limits<std::uint64_t>::max() / 2
+            ? _capacity * 2 + 1
+            : std::numeric_limits<std::uint64_t>::max()>())>;
     using value_type = T;
     using reference = value_type &;
     using iterator_category = std::random_access_iterator_tag;
+
 private:
     friend static_vector<T, _capacity>;
 
     value_type *m_ptr;
+
 public:
     constexpr static_vector_iterator() : m_ptr{nullptr} {}
 
@@ -106,15 +109,18 @@ class static_vector_const_iterator {
 public:
     using size_type = decltype(detail::needed_uint<_capacity>());
     using difference_type = std::make_signed_t<decltype(detail::needed_uint<
-            _capacity < std::numeric_limits<std::uint64_t>::max() / 2 ? _capacity * 2 + 1
-                                                                      : std::numeric_limits<std::uint64_t>::max()>())>;
+            _capacity < std::numeric_limits<std::uint64_t>::max() / 2
+            ? _capacity * 2 + 1
+            : std::numeric_limits<std::uint64_t>::max()>())>;
     using value_type = const T;
     using reference = value_type &;
     using iterator_category = std::random_access_iterator_tag;
+
 private:
     friend static_vector<T, _capacity>;
 
     value_type *m_ptr;
+
 public:
     constexpr static_vector_const_iterator() : m_ptr{nullptr} {}
 
@@ -194,6 +200,7 @@ template<class T, std::size_t _capacity>
 class static_vector {
 private:
     friend static_vector_iterator<T, _capacity>;
+
 public:
     using iterator = static_vector_iterator<T, _capacity>;
     using const_iterator = static_vector_const_iterator<T, _capacity>;
@@ -288,8 +295,8 @@ public:
         return emplace_back(std::forward<G>(elem));
     }
 
-    template<class...Args>
-    constexpr auto &emplace_back(Args &&... args) {
+    template<class... Args>
+    constexpr auto &emplace_back(Args &&...args) {
         assert(m_size < _capacity && "out of space in static_vector");
         m_data[m_size++] = T(std::forward<Args>(args)...);
         return m_data[m_size - 1];
@@ -439,7 +446,7 @@ public:
 
 
 template<class... Args>
-constexpr auto make_static_vector(Args &&... args) {
+constexpr auto make_static_vector(Args &&...args) {
     static_assert(all_same_types<std::remove_cvref_t<Args>...>());
     return static_vector<std::remove_cvref_t<first_type_t<Args...>>, sizeof...(Args)>{std::forward<Args>(args)...};
 }
@@ -473,5 +480,4 @@ static_assert([] {
     v1 = v2;
     return true;
 }());
-}
-
+} // namespace lmj

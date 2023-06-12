@@ -2,8 +2,8 @@
 
 #include <iostream>
 
-#include "print_impl.hpp"
 #include "fast_print_impl.hpp"
+#include "print_impl.hpp"
 
 #ifndef USE_FAST_IO
 #define USE_FAST_IO 1
@@ -35,4 +35,4 @@ inline void debug(auto &&x, auto &&...pack) {
     debug(pack...);
 }
 #endif
-}
+} // namespace lmj

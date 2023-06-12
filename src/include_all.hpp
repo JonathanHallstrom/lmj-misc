@@ -3,9 +3,9 @@
 
 #pragma once
 
+#include "containers/containers.hpp"
 #include "io/io.hpp"
 #include "math/math.hpp"
-#include "containers/containers.hpp"
 #include "utils/utils.hpp"
 
 #endif //LMJ_INCLUDE_ALL_HPP

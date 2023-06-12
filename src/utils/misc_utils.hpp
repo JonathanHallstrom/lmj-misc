@@ -1,22 +1,22 @@
 #pragma once
 
+#include "../containers/containers.hpp"
 #include <string_view>
 #include <thread>
-#include "../containers/containers.hpp"
 
 namespace lmj {
 template<std::size_t n, class... T>
-constexpr decltype(auto) get_nth(T &&... xs) {
+constexpr decltype(auto) get_nth(T &&...xs) {
     return std::get<n>(std::tuple<T &&...>{xs...});
 }
 
 template<class... T>
-constexpr decltype(auto) get_first(T &&... xs) {
+constexpr decltype(auto) get_first(T &&...xs) {
     return get_nth<0>(xs...);
 }
 
 template<class... T>
-constexpr decltype(auto) get_last(T &&... xs) {
+constexpr decltype(auto) get_last(T &&...xs) {
     return get_nth<sizeof...(T) - 1>(xs...);
 }
 
@@ -140,18 +140,18 @@ constexpr auto max(T const &a, G const &b) noexcept -> decltype(a + b) {
 }
 
 template<class T, class... G>
-constexpr auto min(T const &a, G const &... b) noexcept {
+constexpr auto min(T const &a, G const &...b) noexcept {
     return min(a, min(b...));
 }
 
 template<class T, class... G>
-constexpr auto max(T const &a, G const &... b) noexcept {
+constexpr auto max(T const &a, G const &...b) noexcept {
     return max(a, max(b...));
 }
 
 template<class Iterable>
-constexpr auto min(Iterable const &iterable) ->
-std::remove_cvref_t<decltype(std::begin(iterable), std::end(iterable), std::declval<std::iter_value_t<Iterable>>())> {
+constexpr auto min(Iterable const &iterable) -> std::remove_cvref_t<decltype(std::begin(iterable), std::end(
+        iterable), std::declval<std::iter_value_t<Iterable>>())> {
     using T = std::iter_value_t<Iterable>;
     auto iter = std::begin(iterable), end = std::end(iterable);
     T result = *iter;
@@ -161,8 +161,8 @@ std::remove_cvref_t<decltype(std::begin(iterable), std::end(iterable), std::decl
 }
 
 template<class Iterable>
-constexpr auto max(Iterable const &iterable) ->
-std::remove_cvref_t<decltype(std::begin(iterable), std::end(iterable), std::declval<std::iter_value_t<Iterable>>())> {
+constexpr auto max(Iterable const &iterable) -> std::remove_cvref_t<decltype(std::begin(iterable), std::end(
+        iterable), std::declval<std::iter_value_t<Iterable>>())> {
     using T = std::iter_value_t<Iterable>;
     auto iter = std::begin(iterable), end = std::end(iterable);
     T result = *iter;
@@ -209,4 +209,4 @@ static_assert(sign(-1) == -1);
 
 static_assert(min(std::array{1, 2, 3}) == 1);
 static_assert(max(std::array{1, 2, 3}) == 3);
-}
+} // namespace lmj

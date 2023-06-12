@@ -62,8 +62,7 @@ struct timer {
             std::cerr.flush();
             fflush(nullptr);
             std::cerr << (elapsed_pretty() + "\n");
-
         }
     }
 };
-}
+} // namespace lmj
