@@ -4,6 +4,7 @@
 #include <future>
 #include <iomanip>
 #include <set>
+#include <string>
 
 template<class ContainerType>
 concept Container = requires(ContainerType a, const ContainerType b) {
