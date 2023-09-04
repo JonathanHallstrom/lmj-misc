@@ -489,7 +489,7 @@ public:
 
     template<class T>
     bool operator==(T other) const {
-        return m_index == other.m_index || m_table_ptr == other.m_table_ptr;
+        return m_index == other.m_index && m_table_ptr == other.m_table_ptr;
     }
 };
 
@@ -567,7 +567,7 @@ public:
 
     template<class T>
     bool operator==(T other) const {
-        return m_index == other.m_index || m_table_ptr == other.m_table_ptr;
+        return m_index == other.m_index && m_table_ptr == other.m_table_ptr;
     }
 };
 } // namespace lmj
